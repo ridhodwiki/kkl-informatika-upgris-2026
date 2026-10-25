@@ -7,7 +7,10 @@
 <label>Rute perjalanan<input name="route" maxlength="255" placeholder="Contoh: Semarang â†’ Gilimanuk" value="<?= e($item['route']) ?>"></label>
 <label>Nama destinasi<input name="name" required maxlength="160" value="<?= e($item['name']) ?>"></label>
 <label>Tanggal perjalanan<input type="date" name="visit_date" value="<?= e($item['visit_date']) ?>"></label>
-<label>Deskripsi<textarea name="description" rows="5"><?= e($item['description']) ?></textarea></label>
+<label>Deskripsi rundown<textarea name="description" rows="5"><?= e($item['description']) ?></textarea></label>
+<label>Deskripsi tempat<textarea name="place_description" rows="5"><?= e($item['place_description'] ?? '') ?></textarea></label>
+<label>Alamat<input name="address" maxlength="255" value="<?= e($item['address'] ?? '') ?>"></label>
+<label>Google Maps URL<input type="url" name="maps_url" maxlength="500" placeholder="https://www.google.com/maps/..." value="<?= e($item['maps_url'] ?? '') ?>"></label>
 <button class="btn btn-primary">Simpan</button> <a href="<?= e(url('admin/dashboard.php')) ?>">Batal</a>
 </form>
 <?php require __DIR__ . '/../partials/admin_footer.php'; ?>

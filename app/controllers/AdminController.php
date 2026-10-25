@@ -94,7 +94,7 @@ class AdminController
     {
         require_auth();
         $id = (int)($_GET['id'] ?? 0);
-        $item = ['name' => '', 'visit_date' => '', 'description' => '', 'day_no' => 1, 'route' => '', 'sort_order' => 1];
+        $item = ['name' => '', 'visit_date' => '', 'description' => '', 'place_description' => '', 'address' => '', 'maps_url' => '', 'day_no' => 1, 'route' => '', 'sort_order' => 1];
         if ($id) {
             $item = DestinationModel::find($id) ?: $item;
         }
@@ -107,6 +107,9 @@ class AdminController
                 $date = null;
             }
             $desc = trim((string)($_POST['description'] ?? ''));
+            $placeDescription = trim((string)($_POST['place_description'] ?? ''));
+            $address = trim((string)($_POST['address'] ?? ''));
+            $mapsUrl = trim((string)($_POST['maps_url'] ?? ''));
             $route = trim((string)($_POST['route'] ?? ''));
             $day = filter_var($_POST['day_no'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
             $sort = filter_var($_POST['sort_order'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
@@ -118,10 +121,16 @@ class AdminController
                 $error = 'Hari ke- harus angka minimal 1.';
             } elseif ($sort === false) {
                 $error = 'Urutan destinasi harus angka minimal 1.';
+            } elseif (mb_strlen($desc, 'UTF-8') > 5000 || mb_strlen($placeDescription, 'UTF-8') > 5000) {
+                $error = 'Deskripsi maksimal 5000 karakter.';
+            } elseif (mb_strlen($address, 'UTF-8') > 255) {
+                $error = 'Alamat maksimal 255 karakter.';
+            } elseif ($mapsUrl !== '' && !valid_maps_url($mapsUrl)) {
+                $error = 'URL Google Maps tidak valid.';
             } elseif (mb_strlen($route, 'UTF-8') > 255) {
                 $error = 'Rute maksimal 255 karakter.';
             } else {
-                DestinationModel::save($id, $name, $date, $desc, $day === false ? 1 : $day, $route, $sort === false ? 1 : $sort);
+                DestinationModel::save($id, $name, $date, $desc, $placeDescription, $address, $mapsUrl, $day === false ? 1 : $day, $route, $sort === false ? 1 : $sort);
                 redirect('admin/dashboard.php');
             }
         }
@@ -293,7 +302,7 @@ class AdminController
             csrf_verify();
             try {
                 $this->pdo->exec("CREATE TABLE IF NOT EXISTS destinations (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(160) NOT NULL, visit_date DATE NULL, description TEXT, day_no INT NOT NULL DEFAULT 1, route VARCHAR(255) NULL, sort_order INT NOT NULL DEFAULT 1, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-                foreach ([['day_no', 'INT NOT NULL DEFAULT 1'], ['route', 'VARCHAR(255) NULL'], ['sort_order', 'INT NOT NULL DEFAULT 1']] as $column) {
+                foreach ([['day_no', 'INT NOT NULL DEFAULT 1'], ['route', 'VARCHAR(255) NULL'], ['sort_order', 'INT NOT NULL DEFAULT 1'], ['place_description', 'TEXT NULL'], ['address', 'VARCHAR(255) NULL'], ['maps_url', 'VARCHAR(500) NULL']] as $column) {
                     $check = $this->pdo->query("SHOW COLUMNS FROM destinations LIKE " . $this->pdo->quote($column[0]))->fetch();
                     if (!$check) {
                         $this->pdo->exec("ALTER TABLE destinations ADD COLUMN {$column[0]} {$column[1]}");

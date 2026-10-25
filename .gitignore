@@ -30,6 +30,7 @@ public/uploads/profiles/*
 *.sql
 !database/schema.sql
 !database/seed_destinations.sql
+!database/migration_*.sql
 
 # Inspection / audit artifacts
 .taste-skill/

@@ -85,6 +85,20 @@ function valid_text($value, $max)
     return is_string($value) && trim($value) !== '' && mb_strlen(trim($value), 'UTF-8') <= $max;
 }
 
+function valid_maps_url($value)
+{
+    if (!is_string($value) || !filter_var($value, FILTER_VALIDATE_URL)) return false;
+    $host = strtolower((string)parse_url($value, PHP_URL_HOST));
+    $path = (string)parse_url($value, PHP_URL_PATH);
+    return strlen($value) <= 500 && !preg_match('/[\x00-\x20\\\\]/', $value)
+        && strtolower((string)parse_url($value, PHP_URL_SCHEME)) === 'https'
+        && parse_url($value, PHP_URL_USER) === null && parse_url($value, PHP_URL_PASS) === null
+        && (parse_url($value, PHP_URL_PORT) === null || parse_url($value, PHP_URL_PORT) === 443)
+        && (($host === 'maps.app.goo.gl' && strlen($path) > 1)
+            || ($host === 'maps.google.com')
+            || (in_array($host, ['google.com', 'www.google.com'], true) && ($path === '/maps' || strpos($path, '/maps/') === 0)));
+}
+
 function profile_photos(array $profiles)
 {
     $demo = ['andi', 'budi', 'citra', 'dewi', 'eka', 'fajar', 'gita', 'hadi', 'indah', 'joko', 'kartika'];

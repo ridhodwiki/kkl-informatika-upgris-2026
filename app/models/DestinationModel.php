@@ -14,14 +14,14 @@ class DestinationModel
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
     }
 
-    public static function save($id, $name, $date, $description, $day, $route, $sort)
+    public static function save($id, $name, $date, $description, $placeDescription, $address, $mapsUrl, $day, $route, $sort)
     {
         if ($id) {
-            $stmt = db()->prepare('UPDATE destinations SET name=?,visit_date=?,description=?,day_no=?,route=?,sort_order=? WHERE id=?');
-            $stmt->execute([$name, $date, $description, (int)$day, $route, (int)$sort, (int)$id]);
+            $stmt = db()->prepare('UPDATE destinations SET name=?,visit_date=?,description=?,place_description=?,address=?,maps_url=?,day_no=?,route=?,sort_order=? WHERE id=?');
+            $stmt->execute([$name, $date, $description, $placeDescription, $address, $mapsUrl, (int)$day, $route, (int)$sort, (int)$id]);
         } else {
-            $stmt = db()->prepare('INSERT INTO destinations(name,visit_date,description,day_no,route,sort_order) VALUES(?,?,?,?,?,?)');
-            $stmt->execute([$name, $date, $description, (int)$day, $route, (int)$sort]);
+            $stmt = db()->prepare('INSERT INTO destinations(name,visit_date,description,place_description,address,maps_url,day_no,route,sort_order) VALUES(?,?,?,?,?,?,?,?,?)');
+            $stmt->execute([$name, $date, $description, $placeDescription, $address, $mapsUrl, (int)$day, $route, (int)$sort]);
         }
     }
 

@@ -36,6 +36,10 @@ check(valid_date('2026-08-18'), 'valid_date true');
 check(!valid_date('2026-13-01'), 'valid_date month 13 false');
 check(!valid_date('2026-02-30'), 'valid_date day 30 false');
 check(!valid_date('not-a-date'), 'valid_date garbage false');
+check(valid_maps_url('https://www.google.com/maps/place/Bali'), 'valid_maps_url Google Maps');
+check(valid_maps_url('https://maps.app.goo.gl/example'), 'valid_maps_url short Google Maps');
+check(!valid_maps_url('http://www.google.com/maps/place/Bali'), 'valid_maps_url requires HTTPS');
+check(!valid_maps_url('https://example.com/maps'), 'valid_maps_url host allowlist');
 
 check(valid_text('abc', 3), 'valid_text at max');
 check(!valid_text('abcd', 3), 'valid_text over max');
@@ -91,6 +95,38 @@ foreach (['', '?start=30&rel=0', '#fragment'] as $suffix) {
     check(strpos($html, 'src="' . e($videos[0]['embed_url']) . '"') !== false, 'embed URL remains unchanged');
 }
 $videos = [];
+$destinations = [
+    ['id' => 1, 'name' => 'With photo & escaped description <script>alert(1)</script>', 'day_no' => 1, 'visit_date' => '', 'description' => 'Timeline rundown text', 'place_description' => 'Place desc & safe', 'address' => 'Semarang', 'maps_url' => '', 'route' => ''],
+    ['id' => 2, 'name' => 'No photo destination', 'day_no' => 1, 'visit_date' => '', 'description' => 'Timeline only text', 'place_description' => '', 'address' => '', 'maps_url' => '', 'route' => '']
+];
+$gallery = [['destination_id' => 1, 'photo' => 'uploads/gallery/test.webp', 'title' => 'Test photo', 'location' => 'Semarang']];
+ob_start(); require __DIR__ . '/../app/views/home.php'; $html = ob_get_clean();
+
+check(strpos($html, 'Timeline rundown text') !== false, 'timeline renders description');
+check(strpos($html, 'Timeline only text') !== false, 'no-photo destination appears in timeline');
+check(strpos($html, 'No photo destination') !== false, 'no-photo destination title appears in timeline');
+check(strpos($html, 'gallery-rail-global') !== false, 'global gallery rail renders');
+check(strpos($html, 'No photo destination</h3>') === false, 'gallery hides destination without photo');
+check(substr_count($html, 'gallery-rail-wrap') === 1, 'gallery has one global rail');
+check(strpos($html, '&lt;script&gt;alert(1)&lt;!--') === false && strpos($html, '&lt;script&gt;') !== false, 'place description escaped properly');
+$destinations = [
+    ['id' => 1, 'name' => 'Hari dua', 'day_no' => 2, 'sort_order' => 1, 'visit_date' => '', 'description' => '', 'place_description' => '', 'address' => '', 'maps_url' => '', 'route' => ''],
+    ['id' => 2, 'name' => 'Hari satu', 'day_no' => 1, 'sort_order' => 1, 'visit_date' => '', 'description' => '', 'place_description' => '', 'address' => '', 'maps_url' => '', 'route' => ''],
+];
+$gallery = [
+    ['id' => 1, 'destination_id' => 1, 'photo' => 'uploads/gallery/two.webp', 'title' => 'Foto hari dua', 'location' => '', 'created_at' => '2026-08-19 10:00:00'],
+    ['id' => 2, 'destination_id' => 2, 'photo' => 'uploads/gallery/one.webp', 'title' => 'Foto hari satu', 'location' => '', 'created_at' => '2026-08-20 10:00:00'],
+];
+ob_start(); require __DIR__ . '/../app/views/home.php'; $orderedHtml = ob_get_clean();
+check(strpos($orderedHtml, 'Foto hari satu') < strpos($orderedHtml, 'Foto hari dua'), 'gallery follows rundown order');
+$gallery[] = ['id' => 3, 'destination_id' => null, 'photo' => 'uploads/gallery/other.webp', 'title' => 'Foto tanpa destinasi', 'location' => 'Lokasi umum', 'created_at' => '2026-08-21 10:00:00'];
+ob_start(); require __DIR__ . '/../app/views/home.php'; $unassignedHtml = ob_get_clean();
+check(strpos($unassignedHtml, 'Foto tanpa destinasi') !== false, 'gallery preserves unassigned photos');
+check(strpos($unassignedHtml, 'Dokumentasi lainnya') !== false, 'unassigned photo uses fallback label');
+
+$gallery = [];
+ob_start(); require __DIR__ . '/../app/views/home.php'; $emptyHtml = ob_get_clean();
+check(strpos($emptyHtml, 'Dokumentasi foto menyusul.') !== false, 'empty gallery state renders when gallery is empty');
 
  echo $fails ? "\nFAILURES:\n- " . implode("\n- ", $fails) . "\n" : "\nALL CHECKS PASSED\n";
 exit($fails ? 1 : 0);

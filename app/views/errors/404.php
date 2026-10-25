@@ -8,14 +8,14 @@ $siteTitle = 'KKL Informatika UPGRIS 2026';
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Halaman tidak ditemukan — KKL Informatika UPGRIS 2026</title>
 <meta name="robots" content="noindex">
-<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=7">
+<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=9">
 </head>
-<body>
-<main class="section">
-<div class="container" style="max-width:560px;text-align:center;padding:80px 0">
-<h1 style="font-family:Georgia,serif;font-size:clamp(80px,16vw,160px);line-height:1;margin:0 0 8px;color:#18352f">404</h1>
-<h2 style="font-size:clamp(24px,3.5vw,32px)">Halaman tidak ditemukan</h2>
-<p class="muted" style="margin-bottom:28px">Halaman yang kamu cari tidak tersedia atau sudah dipindahkan.</p>
+<body class="public-page">
+<main class="section error-page">
+<div class="container error-page-inner">
+<h1>404</h1>
+<h2>Halaman tidak ditemukan</h2>
+<p class="muted">Halaman yang kamu cari tidak tersedia atau sudah dipindahkan.</p>
 <a class="btn btn-primary" href="<?= url('/') ?>">Kembali ke beranda</a>
 </div>
 </main>

@@ -20,9 +20,9 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 <meta name="twitter:image" content="<?= url('assets/img/hero-bali.jpg') ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=8">
+<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=11">
 </head>
-<body>
+<body class="public-page">
 <a class="skip-link" href="#tentang">Lewati ke konten utama</a>
 <header class="site-header">
   <div class="container nav-wrap">
@@ -30,7 +30,8 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
       <?php if (!empty($settings['logo'])): ?><img src="<?= url($settings['logo']) ?>" alt="Logo" decoding="async"><?php else: ?><span class="brand-mark">K</span><?php endif; ?>
       <span><?= e($siteTitle) ?></span>
     </a>
-    <nav>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="public-nav">Menu</button>
+    <nav id="public-nav">
       <a href="<?= url('/#tentang') ?>">Tentang</a>
       <a href="<?= url('/#timeline') ?>">Perjalanan</a>
       <a href="<?= url('/#profil') ?>">Pembuat</a>
@@ -43,15 +44,16 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 
 <section class="hero reveal" id="beranda">
   <div class="hero-content">
-    <h1>Satu Perjalanan.<br>Seribu Kenangan.</h1>
-    <p>Dokumentasi perjalanan Kuliah Kerja Lapangan Program Studi Informatika UPGRIS 2026 — 18–22 Agustus 2026, Bali.</p>
+    <h1>KKL Bali 2026</h1>
+     <p>Satu Perjalanan. Seribu Kenangan.</p>
+     <p>Dokumentasi perjalanan Kuliah Kerja Lapangan Program Studi Informatika UPGRIS 2026 — 18–22 Agustus 2026, Bali.</p>
     <div class="hero-actions"><a class="btn btn-primary" href="#timeline">Lihat Perjalanan</a><a class="btn btn-ghost" href="#galeri">Jelajahi Galeri</a></div>
   </div>
 </section>
 
 <section id="tentang" class="section">
   <div class="container two-col">
-    <div><h2 class="reveal">Belajar di luar kelas, tumbuh bersama.</h2></div>
+    <div><h2 class="reveal">Belajar di Bali</h2><p class="section-intro">Belajar di luar kelas, tumbuh bersama.</p></div>
     <div><p>Website ini menjadi ruang digital untuk menyimpan cerita, dokumentasi, video, dan kesan dari perjalanan KKL Informatika UPGRIS 2026.</p><p class="muted">Jadwal dapat berubah sesuai kondisi lapangan dan kesepakatan bersama.</p></div>
   </div>
 </section>
@@ -72,17 +74,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
     <h4><?= e($destination['name']) ?></h4>
     <?php if ($destination['visit_date']): ?><small><?= e(date('d M Y', strtotime($destination['visit_date']))) ?></small><?php endif; ?>
     <?php if ($destination['description']): ?><p><?= e($destination['description']) ?></p><?php endif; ?>
-    <?php $destinationPhotos = array_values(array_filter($gallery, fn($photo) => (int)$photo['destination_id'] === (int)$destination['id'])); ?>
-    <?php if ($destinationPhotos): ?>
-      <div class="journey-photo-grid">
-        <?php foreach (array_slice($destinationPhotos, 0, 4) as $photo): ?>
-          <a href="#destinasi-<?= (int)$destination['id'] ?>" class="journey-photo"><img src="<?= url($photo['photo']) ?>" alt="<?= e($photo['title']) ?>" loading="lazy" decoding="async"></a>
-        <?php endforeach; ?>
-      </div>
-      <?php if (count($destinationPhotos) > 4): ?><small class="muted">+<?= count($destinationPhotos)-4 ?> foto lainnya</small><?php endif; ?>
-    <?php endif; ?>
   </div>
-  <a class="btn btn-ghost" href="#destinasi-<?= (int)$destination['id'] ?>">Lihat semua foto</a>
 </article>
 <?php endforeach; ?>
 </div></div>
@@ -111,23 +103,13 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 </section>
 
 <section id="galeri" class="section section-soft">
-<div class="container"><h2 class="reveal">Jejak perjalanan di setiap destinasi</h2><p class="section-intro">Setiap destinasi memiliki kumpulan foto dan cerita yang dikelola melalui halaman admin.</p>
-<?php foreach ($destinations as $destination): ?>
-<div class="destination-block reveal" id="destinasi-<?= (int)$destination["id"] ?>">
-  <div class="destination-heading"><div><h3><?= e($destination["name"]) ?></h3></div><?php if ($destination["visit_date"]): ?><span class="destination-date"><?= e(date('d M Y', strtotime($destination["visit_date"]))) ?></span><?php endif; ?></div>
-  <?php if ($destination["description"]): ?><p><?= e($destination["description"]) ?></p><?php endif; ?>
-  <div class="gallery-grid">
-  <?php $hasPhotos=false; foreach ($gallery as $item): if ((int)$item["destination_id"] === (int)$destination["id"]): $hasPhotos=true; ?>
-    <figure class="gallery-card reveal"><img src="<?= url($item["photo"]) ?>" alt="<?= e($item["title"]) ?>" loading="lazy" decoding="async"><figcaption><strong><?= e($item["title"]) ?></strong><span><?= e($item["location"]) ?></span></figcaption></figure>
-  <?php endif; endforeach; ?>
-  <?php if (!$hasPhotos): ?><div class="empty">Belum ada foto untuk destinasi ini.</div><?php endif; ?>
-  </div>
-</div>
-<?php endforeach; ?>
-<?php $unassigned = array_filter($gallery, fn($item) => empty($item['destination_id'])); if ($unassigned): ?>
-<div class="destination-block reveal"><div class="destination-heading"><h3>Dokumentasi lainnya</h3></div><div class="gallery-grid"><?php foreach ($unassigned as $item): ?><figure class="gallery-card reveal"><img src="<?= url($item['photo']) ?>" alt="<?= e($item['title']) ?>" loading="lazy" decoding="async"><figcaption><strong><?= e($item['title']) ?></strong><span><?= e($item['location']) ?></span></figcaption></figure><?php endforeach; ?></div></div>
-<?php endif; ?>
-<?php if (!$destinations && !$gallery): ?><div class="empty"><p><strong>Dokumentasi foto menyusul.</strong><br>Foto perjalanan akan diunggah setelah KKL selesai.</p></div><?php endif; ?>
+<div class="container"><h2 class="reveal">Galeri perjalanan</h2><p class="section-intro">Jelajahi dokumentasi KKL dalam satu rangkaian cerita visual.</p>
+<?php $destinationById = []; foreach ($destinations as $destination) { $destinationById[(int)$destination['id']] = $destination; } $galleryItems = []; foreach ($gallery as $item) { $destination = $destinationById[(int)($item['destination_id'] ?? 0)] ?? null; $item['destination_name'] = $destination['name'] ?? 'Dokumentasi lainnya'; $item['place_description'] = $destination['place_description'] ?? ''; $item['address'] = $destination['address'] ?? $item['location']; $item['day_no'] = (int)($destination['day_no'] ?? PHP_INT_MAX); $item['sort_order'] = (int)($destination['sort_order'] ?? PHP_INT_MAX); $galleryItems[] = $item; } usort($galleryItems, fn($a, $b) => [$a['day_no'], $a['sort_order'], $a['created_at'] ?? '', $a['id'] ?? 0] <=> [$b['day_no'], $b['sort_order'], $b['created_at'] ?? '', $b['id'] ?? 0]); ?>
+<?php if ($galleryItems): ?>
+<div class="gallery-rail-wrap gallery-rail-global"><button class="gallery-rail-button gallery-rail-prev" type="button" aria-label="Foto sebelumnya">‹</button><div class="gallery-rail" tabindex="0" aria-label="Galeri foto perjalanan">
+<?php foreach ($galleryItems as $item): ?><figure class="gallery-card"><img src="<?= url($item['photo']) ?>" alt="<?= e($item['title']) ?>" loading="lazy" decoding="async"><figcaption><strong><?= e($item['title']) ?></strong><span><?= e($item['destination_name']) ?></span><?php if ($item['address']): ?><small><?= e($item['address']) ?></small><?php endif; ?><?php if ($item['place_description']): ?><p><?= e($item['place_description']) ?></p><?php endif; ?></figcaption></figure><?php endforeach; ?>
+</div><button class="gallery-rail-button gallery-rail-next" type="button" aria-label="Foto berikutnya">›</button></div>
+<?php else: ?><div class="empty"><p><strong>Dokumentasi foto menyusul.</strong><br>Foto perjalanan akan diunggah setelah KKL selesai.</p></div><?php endif; ?>
 </div></section>
 
 <section class="section">
@@ -154,11 +136,12 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 
 <footer class="footer">
   <div class="container footer-inner">
-    <div><strong>KKL Informatika UPGRIS 2026</strong><p>Perjalanan, pengalaman, dan kenangan dalam satu cerita.</p><p class="small">Dibuat oleh Kelompok 11 — Program Studi Informatika UPGRIS.</p></div>
-    <div>© 2026 Informatika UPGRIS</div>
+    <div><strong>KKL Informatika UPGRIS 2026</strong><p>Perjalanan, pengalaman, dan kenangan dalam satu cerita.</p><p class="small">Dibuat oleh Kelompok 11 — Program Studi Informatika, Fakultas Teknik dan Informatika, Universitas PGRI Semarang.</p></div>
+     <div>© 2026 Universitas PGRI Semarang</div>
   </div>
 </footer>
-<script defer src="<?= url('assets/js/main.js') ?>?v=4"></script>
+<dialog id="public-lightbox" class="public-lightbox" aria-label="Pratinjau foto"><button type="button" data-lightbox-close aria-label="Tutup">×</button><button type="button" data-lightbox-prev aria-label="Foto sebelumnya">‹</button><img alt=""><button type="button" data-lightbox-next aria-label="Foto berikutnya">›</button></dialog>
+<script defer src="<?= url('assets/js/main.js') ?>?v=7"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",

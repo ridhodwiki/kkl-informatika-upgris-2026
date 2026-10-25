@@ -1,0 +1,10 @@
+﻿<IfModule mod_php.c>
+php_flag engine off
+</IfModule>
+<IfModule mod_cgi.c>
+RemoveHandler .cgi .pl .py .pyc .pyo .phtml .php .php3 .php4 .php5 .php6 .phar
+</IfModule>
+Options -Indexes
+<FilesMatch "\.(php|phtml|php3|php4|php5|php6|cgi|pl|py|pyc|pyo|phar|sh)$">
+Require all denied
+</FilesMatch>

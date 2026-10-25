@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+
+Sitemap: /kkl-informatika-upgris-2026/sitemap.xml

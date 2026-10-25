@@ -1,0 +1,40 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE / editor
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Local configuration
+config/config.php
+.env
+
+# Runtime uploads: keep bundled profile images only
+public/uploads/gallery/*
+public/uploads/branding/*
+public/uploads/profiles/*
+!public/uploads/profiles/*.jpg
+!public/uploads/profiles/*.webp
+!public/uploads/profiles/index.html
+!public/uploads/profiles/.htaccess
+!public/uploads/gallery/index.html
+!public/uploads/gallery/.htaccess
+!public/uploads/branding/index.html
+!public/uploads/branding/.htaccess
+
+# Database dumps / backups
+*.sql
+!database/schema.sql
+!database/seed_destinations.sql
+
+# Inspection / audit artifacts
+.taste-skill/
+.impeccable/
+
+# Logs
+*.log
+vendor/

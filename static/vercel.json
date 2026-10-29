@@ -1,4 +1,7 @@
 {
+  "outputDirectory": ".",
+  "installCommand": "",
+  "buildCommand": "",
   "cleanUrls": true,
   "trailingSlash": false,
   "headers": [

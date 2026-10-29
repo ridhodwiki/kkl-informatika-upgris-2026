@@ -1,0 +1,23 @@
+{
+  "src/journey/index.js": {
+    "file": "assets/journey.CQxwwXPu.js",
+    "name": "journey",
+    "src": "src/journey/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "src/main.jsx"
+    ]
+  },
+  "src/main.jsx": {
+    "file": "assets/main.q1TK-eLD.js",
+    "name": "main",
+    "src": "src/main.jsx",
+    "isEntry": true,
+    "dynamicImports": [
+      "src/journey/index.js"
+    ],
+    "css": [
+      "assets/main.BBJi3ly0.css"
+    ]
+  }
+}

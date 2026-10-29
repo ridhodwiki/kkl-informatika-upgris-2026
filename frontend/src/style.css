@@ -1,0 +1,59 @@
+#hero-3d-root {
+  position: absolute;
+  z-index: 1;
+  inset: 0 0 0 auto;
+  width: 49%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 120ms linear;
+}
+
+#beranda[data-diorama="active"] #hero-3d-root {
+  opacity: max(0, calc(1 - var(--diorama-dissolve, 0) * 1.05));
+}
+
+#beranda[data-diorama="active"]::before {
+  visibility: hidden;
+}
+
+#beranda[data-diorama="active"] .hero-content {
+  transform: translateY(calc(var(--diorama-progress, 0) * -18px));
+  opacity: max(.92, calc(1 - var(--diorama-progress, 0) * .08));
+  transition: transform 120ms linear, opacity 120ms linear;
+}
+
+#hero-3d-root .diorama-canvas-wrap,
+#hero-3d-root canvas {
+  width: 100%;
+  height: 100%;
+}
+
+#hero-3d-root canvas {
+  display: block;
+}
+
+
+#beranda[data-diorama="fallback"] #hero-3d-root {
+  visibility: hidden;
+}
+
+@media (max-width: 850px) {
+  #hero-3d-root {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 46%;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  #beranda[data-diorama="active"]::before {
+    visibility: hidden;
+  }
+
+  #beranda[data-diorama="active"] .hero-content {
+    position: relative;
+    z-index: 3;
+  }
+}

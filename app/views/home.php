@@ -42,14 +42,17 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
   </div>
 </header>
 
-<section class="hero reveal" id="beranda">
-  <div class="hero-content">
-    <h1>KKL Bali 2026</h1>
-     <p>Satu Perjalanan. Seribu Kenangan.</p>
-     <p>Dokumentasi perjalanan Kuliah Kerja Lapangan Program Studi Informatika UPGRIS 2026 — 18–22 Agustus 2026, Bali.</p>
-    <div class="hero-actions"><a class="btn btn-primary" href="#timeline">Lihat Perjalanan</a><a class="btn btn-ghost" href="#galeri">Jelajahi Galeri</a></div>
-  </div>
-</section>
+<div class="hero-stage">
+  <section class="hero reveal" id="beranda" data-diorama="fallback">
+    <div class="hero-content">
+      <h1>KKL Bali 2026</h1>
+       <p>Satu Perjalanan. Seribu Kenangan.</p>
+       <p>Dokumentasi perjalanan Kuliah Kerja Lapangan Program Studi Informatika UPGRIS 2026 — 18–22 Agustus 2026, Bali.</p>
+      <div class="hero-actions"><a class="btn btn-primary" href="#timeline">Lihat Perjalanan</a><a class="btn btn-ghost" href="#galeri">Jelajahi Galeri</a></div>
+    </div>
+    <div id="hero-3d-root" aria-hidden="true" data-model-url="<?= url('assets/models/candi-bentar.glb') ?>"></div>
+  </section>
+</div>
 
 <section id="tentang" class="section">
   <div class="container two-col">
@@ -136,12 +139,16 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 
 <footer class="footer">
   <div class="container footer-inner">
-    <div><strong>KKL Informatika UPGRIS 2026</strong><p>Perjalanan, pengalaman, dan kenangan dalam satu cerita.</p><p class="small">Dibuat oleh Kelompok 11 — Program Studi Informatika, Fakultas Teknik dan Informatika, Universitas PGRI Semarang.</p></div>
+    <div><strong>KKL Informatika UPGRIS 2026</strong><p>Perjalanan, pengalaman, dan kenangan dalam satu cerita.</p><p class="small">Dibuat oleh Kelompok 11 — Program Studi Informatika, Fakultas Teknik dan Informatika, Universitas PGRI Semarang.</p><p class="small">Model 3D: <a href="https://sketchfab.com/3d-models/candi-bentar-sisi-8fb31ebb25924533826c0f1da1d9cae2" rel="noopener" target="_blank">“Candi Bentar Sisi” by nusaheritage.id</a>, <a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener" target="_blank">CC BY 4.0</a>, dioptimalkan untuk web.</p></div>
      <div>© 2026 Universitas PGRI Semarang</div>
   </div>
 </footer>
 <dialog id="public-lightbox" class="public-lightbox" aria-label="Pratinjau foto"><button type="button" data-lightbox-close aria-label="Tutup">×</button><button type="button" data-lightbox-prev aria-label="Foto sebelumnya">‹</button><img alt=""><button type="button" data-lightbox-next aria-label="Foto berikutnya">›</button></dialog>
 <script defer src="<?= url('assets/js/main.js') ?>?v=7"></script>
+<?php $dioramaManifest = __DIR__ . '/../../public/dist/.vite/manifest.json'; if (is_file($dioramaManifest)): $dioramaEntry = json_decode(file_get_contents($dioramaManifest), true)['src/main.jsx'] ?? null; if ($dioramaEntry): ?>
+<link rel="stylesheet" href="<?= url('dist/' . $dioramaEntry['css'][0]) ?>">
+<script type="module" src="<?= url('dist/' . $dioramaEntry['file']) ?>"></script>
+<?php endif; endif; ?>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",

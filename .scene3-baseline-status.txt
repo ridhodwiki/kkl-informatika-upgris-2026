@@ -1,0 +1,10 @@
+﻿ M .gitignore
+ M app/views/home.php
+ M public/assets/css/style.css
+ M public/index.php
+ M tests/public_browser_check.mjs
+?? .scene3-baseline-status.txt
+?? frontend/
+?? public/assets/models/
+?? public/dist/
+?? tests/public_browser_perf.mjs

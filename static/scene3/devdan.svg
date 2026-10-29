@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="1000" height="700">
+  <defs>
+    <linearGradient id="stage" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a0a2e"/>
+      <stop offset="100%" stop-color="#0d0818"/>
+    </linearGradient>
+    <radialGradient id="spotlight" cx="50%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="#f8e0a0" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#f8e0a0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="spotlight2" cx="30%" cy="25%" r="35%">
+      <stop offset="0%" stop-color="#a0c8f8" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#a0c8f8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="spotlight3" cx="70%" cy="25%" r="35%">
+      <stop offset="0%" stop-color="#f8a0a0" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#f8a0a0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Dark stage background -->
+  <rect width="1000" height="700" fill="url(#stage)"/>
+  <!-- Spotlights -->
+  <ellipse cx="500" cy="320" rx="500" ry="380" fill="url(#spotlight)"/>
+  <ellipse cx="300" cy="280" rx="350" ry="300" fill="url(#spotlight2)"/>
+  <ellipse cx="700" cy="280" rx="350" ry="300" fill="url(#spotlight3)"/>
+  <!-- Stage floor -->
+  <ellipse cx="500" cy="560" rx="420" ry="80" fill="#2a1a04" opacity="0.8"/>
+  <!-- Curtains -->
+  <polygon points="0,0 160,0 120,700 0,700" fill="#6a0820" opacity="0.9"/>
+  <polygon points="1000,0 840,0 880,700 1000,700" fill="#6a0820" opacity="0.9"/>
+  <!-- Stage platform -->
+  <rect x="100" y="500" width="800" height="40" fill="#3a2808" rx="4"/>
+  <!-- Dancer silhouette 1 (center, arms up — legong pose) -->
+  <g transform="translate(480,310)">
+    <!-- body -->
+    <rect x="-12" y="-60" width="24" height="80" fill="#c87820" rx="8"/>
+    <!-- head with headdress -->
+    <circle cx="0" cy="-78" r="18" fill="#c8a050"/>
+    <!-- headdress triangles -->
+    <polygon points="-8,-96 0,-130 8,-96" fill="#d4b030"/>
+    <polygon points="-14,-90 -6,-118 2,-90" fill="#e8c840"/>
+    <polygon points="14,-90 6,-118 -2,-90" fill="#e8c840"/>
+    <!-- arms -->
+    <line x1="-12" y1="-40" x2="-60" y2="-80" stroke="#c87820" stroke-width="12" stroke-linecap="round"/>
+    <line x1="12" y1="-40" x2="60" y2="-80" stroke="#c87820" stroke-width="12" stroke-linecap="round"/>
+    <!-- hands -->
+    <ellipse cx="-62" cy="-82" rx="8" ry="6" fill="#d4a040" transform="rotate(-30,-62,-82)"/>
+    <ellipse cx="62" cy="-82" rx="8" ry="6" fill="#d4a040" transform="rotate(30,62,-82)"/>
+    <!-- legs/skirt -->
+    <polygon points="-20,20 0,15 20,20 14,80 -14,80" fill="#8a4820"/>
+    <!-- costume detail -->
+    <rect x="-12" y="-25" width="24" height="6" fill="#d4a030" rx="1"/>
+    <rect x="-12" y="-15" width="24" height="6" fill="#d4a030" rx="1"/>
+  </g>
+  <!-- Dancer silhouette 2 (left) -->
+  <g transform="translate(320,360)">
+    <rect x="-10" y="-50" width="20" height="65" fill="#9a4820" rx="7"/>
+    <circle cx="0" cy="-64" r="14" fill="#c89040"/>
+    <polygon points="-6,-74 0,-100 6,-74" fill="#d4a830"/>
+    <line x1="-10" y1="-33" x2="-44" y2="-60" stroke="#9a4820" stroke-width="10" stroke-linecap="round"/>
+    <line x1="10" y1="-33" x2="36" y2="-20" stroke="#9a4820" stroke-width="10" stroke-linecap="round"/>
+    <polygon points="-16,15 0,12 16,15 11,65 -11,65" fill="#6a3018"/>
+  </g>
+  <!-- Dancer silhouette 3 (right) -->
+  <g transform="translate(660,360)">
+    <rect x="-10" y="-50" width="20" height="65" fill="#9a4820" rx="7"/>
+    <circle cx="0" cy="-64" r="14" fill="#c89040"/>
+    <polygon points="-6,-74 0,-100 6,-74" fill="#d4a830"/>
+    <line x1="-10" y1="-33" x2="-36" y2="-20" stroke="#9a4820" stroke-width="10" stroke-linecap="round"/>
+    <line x1="10" y1="-33" x2="44" y2="-60" stroke="#9a4820" stroke-width="10" stroke-linecap="round"/>
+    <polygon points="-16,15 0,12 16,15 11,65 -11,65" fill="#6a3018"/>
+  </g>
+  <!-- Stage lighting bars -->
+  <rect x="80" y="30" width="840" height="10" fill="#333" rx="3"/>
+  <!-- Light fixtures -->
+  <circle cx="180" cy="60" r="12" fill="#f8c040" opacity="0.8"/>
+  <circle cx="320" cy="55" r="12" fill="#a0c8f8" opacity="0.8"/>
+  <circle cx="500" cy="50" r="14" fill="#f8e080" opacity="0.9"/>
+  <circle cx="680" cy="55" r="12" fill="#f8a070" opacity="0.8"/>
+  <circle cx="820" cy="60" r="12" fill="#f8c040" opacity="0.8"/>
+  <!-- Overhead text/branding subtle -->
+  <text x="500" y="170" font-family="Georgia,serif" font-size="22" fill="#d4a030" text-anchor="middle" opacity="0.4" font-style="italic">Devdan Show</text>
+  <!-- Overlay label -->
+  <rect x="0" y="630" width="1000" height="70" fill="rgba(16,58,50,0.82)"/>
+  <text x="32" y="658" font-family="Georgia,serif" font-size="15" fill="#d6aa52">Devdan Show · Nusa Dua</text>
+  <text x="32" y="682" font-family="Arial,sans-serif" font-size="13" fill="#a0c4b8">Foto akan ditampilkan setelah dokumentasi KKL tersedia · 19 Agustus 2026</text>
+</svg>

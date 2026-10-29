@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="1000" height="700">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ece5d8"/>
+      <stop offset="100%" stop-color="#d8cfc0"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="1000" height="700" fill="url(#bg)"/>
+  <!-- Floor -->
+  <rect y="540" width="1000" height="160" fill="#c4b89a"/>
+  <!-- Shelving unit left -->
+  <rect x="60" y="160" width="180" height="380" fill="#8a7a62" rx="4"/>
+  <rect x="70" y="200" width="160" height="25" fill="#c8a842"/>
+  <rect x="70" y="270" width="160" height="25" fill="#c8a842"/>
+  <rect x="70" y="340" width="160" height="25" fill="#c8a842"/>
+  <rect x="70" y="410" width="160" height="25" fill="#c8a842"/>
+  <!-- Shelving unit right -->
+  <rect x="760" y="160" width="180" height="380" fill="#8a7a62" rx="4"/>
+  <rect x="770" y="200" width="160" height="25" fill="#c8a842"/>
+  <rect x="770" y="270" width="160" height="25" fill="#c8a842"/>
+  <rect x="770" y="340" width="160" height="25" fill="#c8a842"/>
+  <rect x="770" y="410" width="160" height="25" fill="#c8a842"/>
+  <!-- Center display table -->
+  <rect x="300" y="360" width="400" height="180" fill="#a08060" rx="6"/>
+  <rect x="310" y="350" width="380" height="30" fill="#b89070" rx="3"/>
+  <!-- Product blocks on table -->
+  <rect x="330" y="290" width="80" height="60" fill="#d4a840" rx="4"/>
+  <rect x="430" y="310" width="80" height="40" fill="#c87040" rx="4"/>
+  <rect x="530" y="295" width="80" height="55" fill="#e8c860" rx="4"/>
+  <rect x="630" y="305" width="60" height="45" fill="#c84040" rx="4"/>
+  <!-- Ceiling lights -->
+  <ellipse cx="250" cy="140" rx="30" ry="8" fill="#f8e0b0" opacity="0.7"/>
+  <ellipse cx="500" cy="140" rx="30" ry="8" fill="#f8e0b0" opacity="0.7"/>
+  <ellipse cx="750" cy="140" rx="30" ry="8" fill="#f8e0b0" opacity="0.7"/>
+  <line x1="250" y1="80" x2="250" y2="140" stroke="#aaa" stroke-width="2"/>
+  <line x1="500" y1="80" x2="500" y2="140" stroke="#aaa" stroke-width="2"/>
+  <line x1="750" y1="80" x2="750" y2="140" stroke="#aaa" stroke-width="2"/>
+  <!-- Sign on back wall -->
+  <rect x="340" y="80" width="320" height="60" fill="#103a32" rx="4"/>
+  <text x="500" y="118" font-family="Georgia,serif" font-size="18" fill="#d6aa52" text-anchor="middle" font-weight="700">Produk Kerajinan Khas Bali</text>
+  <!-- Overlay label -->
+  <rect x="0" y="630" width="1000" height="70" fill="rgba(16,58,50,0.82)"/>
+  <text x="32" y="658" font-family="Georgia,serif" font-size="15" fill="#d6aa52">Eksplorasi Kerajinan &amp; Pasar Suvenir · Bali</text>
+  <text x="32" y="682" font-family="Arial,sans-serif" font-size="13" fill="#a0c4b8">Foto akan ditampilkan setelah dokumentasi KKL tersedia · 19 Agustus 2026</text>
+</svg>

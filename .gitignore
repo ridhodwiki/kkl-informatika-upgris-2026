@@ -39,3 +39,4 @@ public/uploads/profiles/*
 # Logs
 *.log
 vendor/
+frontend/node_modules/

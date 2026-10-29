@@ -1,0 +1,518 @@
+/* ─── Scene 3: "Bekal yang Dibawa Pulang" ────────────────────────────────────
+   Visual system: paper (#f4f1e9), emerald (#103a32), gold (#d6aa52).
+   Uses design tokens defined on .public-page when available; falls back to
+   the hardcoded values that match journey.css for standalone resilience.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* ─── Section shell ──────────────────────────────────────────────────────── */
+.learning-scene {
+  position: relative;
+  background: #f4f1e9;
+  color: #103a32;
+  /* Top border echoes the journey-scene border-bottom, creating visual continuity */
+  border-top: 1px solid #c9c5b5;
+  border-bottom: 1px solid #c9c5b5;
+  /* Note: no overflow:hidden — it would break position:sticky on .learning-pin */
+}
+
+/* ─── Intro header ───────────────────────────────────────────────────────── */
+.learning-intro {
+  position: relative;
+  z-index: 2;
+  padding: 80px max(24px, calc((100vw - 1180px) / 2)) 56px;
+  max-width: 1180px;
+  margin-inline: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.learning-intro .learning-kicker {
+  font: 600 14px / 1.5 Arial, sans-serif;
+  letter-spacing: 0.16em;
+  color: #52675b;
+  margin: 0 0 20px;
+}
+
+.learning-intro h2 {
+  font: 400 clamp(40px, 5vw, 72px) / 1.06 Georgia, serif;
+  letter-spacing: -0.04em;
+  color: #103a32;
+  margin: 0 0 20px;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+
+.learning-intro-body {
+  font: 400 17px / 1.7 Arial, sans-serif;
+  color: #52675b;
+  max-width: 56ch;
+  margin: 0;
+}
+
+/* ─── Gold learning thread ───────────────────────────────────────────────── */
+/* A vertical gold line that "grows" down the left margin as you scroll,
+   echoing the journey gold lines from Scene 2. Purely decorative. */
+.learning-thread {
+  position: absolute;
+  top: 0;
+  left: max(24px, calc((100vw - 1180px) / 2 - 24px));
+  width: 2px;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: #c9c5b5; /* track */
+}
+
+.learning-thread::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* scaleY grows from 0 → 1 as --thread-progress goes 0 → 1 */
+  height: 100%;
+  background: #b88a35; /* gold, matching journey.css */
+  transform: scaleY(var(--thread-progress, 0));
+  transform-origin: top center;
+  transition: transform 60ms linear;
+}
+
+@media (max-width: 850px) {
+  .learning-thread {
+    left: 16px;
+  }
+}
+
+/* ─── Stage layout ───────────────────────────────────────────────────────── */
+/* Two-column grid: sticky photo on left, scrolling chapters on right.
+   On mobile this collapses to a single column.
+   IMPORTANT: No overflow:hidden here — it breaks sticky positioning. */
+.learning-stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto;
+  align-items: start;
+  gap: 0;
+  padding: 0 max(24px, calc((100vw - 1180px) / 2));
+  padding-bottom: 80px;
+  box-sizing: border-box;
+  /* overflow:hidden intentionally omitted — would break position:sticky */
+}
+
+@media (max-width: 768px) {
+  .learning-stage {
+    grid-template-columns: 1fr;
+    padding: 0 24px 56px;
+  }
+}
+
+/* ─── Sticky photo pin ───────────────────────────────────────────────────── */
+.learning-pin {
+  position: sticky;
+  /* Offset below header (nav ~76px + small gap) */
+  top: calc(var(--hero-sticky-top, 76px) + 24px);
+  /* Explicit height: the pin must have a height for absolute-positioned frames inside.
+     Limit on short landscape screens — never clip the viewport. */
+  height: min(calc(100svh - var(--hero-sticky-top, 76px) - 48px), 600px);
+  max-height: calc(100svh - var(--hero-sticky-top, 76px) - 48px);
+  overflow: hidden;
+  border-radius: 3px;
+  box-shadow: 0 2px 0 #c9c5b5, 0 4px 0 #b8b2a4, 0 20px 40px rgba(16, 58, 50, 0.12);
+  margin-right: 40px;
+  /* Paper-clip visual effect: stacked corner triangle */
+  background: #f4f1e9;
+  /* Align to start of grid row so sticky top works correctly */
+  align-self: start;
+}
+
+/* Clip decoration (paper-clip corner) */
+.learning-pin::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 32px 32px 0;
+  border-color: transparent #c9c5b5 transparent transparent;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.learning-pin::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 28px 28px 0;
+  border-color: transparent #f4f1e9 transparent transparent;
+  z-index: 5;
+  pointer-events: none;
+}
+
+@media (min-width: 851px) and (max-width: 1200px) {
+  .learning-pin {
+    margin-right: 24px;
+    height: min(calc(100svh - var(--hero-sticky-top, 76px) - 48px), 520px);
+  }
+}
+
+@media (max-width: 850px) {
+  .learning-pin {
+    position: sticky;
+    top: calc(var(--hero-sticky-top, 76px) + 16px);
+    /* On 769–850px tablets: height is viewport-fraction-constrained */
+    height: min(48vw, calc(100svh - var(--hero-sticky-top, 76px) - 80px));
+    max-height: min(48vw, calc(100svh - var(--hero-sticky-top, 76px) - 80px));
+    min-height: 200px;
+    margin-bottom: 32px;
+    margin-right: 0;
+    align-self: start;
+  }
+}
+
+@media (max-width: 768px) {
+  .learning-pin {
+    /* On mobile, the inline chapter media handles illustration display.
+       Hide the shared pin entirely — it would just sit at the top and scroll away. */
+    display: none;
+  }
+}
+
+/* ─── Individual frames inside the pin ──────────────────────────────────── */
+.learning-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* Paper-reveal clip: starts clipped at the bottom (fully hidden),
+     reveals downward as --frame-reveal goes 0 → 1 */
+  clip-path: inset(0 0 calc((1 - var(--frame-reveal, 0)) * 100%) 0 round 2px);
+  transition: clip-path 320ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: clip-path;
+}
+
+/* The first frame is pre-revealed so there's always something visible */
+.learning-frame:first-child {
+  --frame-reveal: 1;
+  clip-path: inset(0 round 2px);
+}
+
+/* Active frame sits on top */
+.learning-frame[data-active='true'] {
+  z-index: 2;
+}
+
+.learning-frame[data-active='false'] {
+  z-index: 1;
+}
+
+.learning-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Subtle parallax: translateY driven by --frame-parallax */
+  transform: translateY(var(--frame-parallax, 0));
+  transition: transform 80ms linear;
+  will-change: transform;
+}
+
+/* On mobile (≤768px) the pin is display:none, so frame visibility rules
+   don't matter — but keep them correct for any edge case */
+@media (max-width: 768px) {
+  .learning-frame {
+    position: static;
+    clip-path: none;
+    display: none;
+  }
+  .learning-frame[data-active='true'] {
+    display: block;
+  }
+  .learning-frame img {
+    height: 100%;
+    width: 100%;
+    transform: none;
+  }
+}
+
+/* ─── Per-chapter inline media (mobile only) ────────────────────────────── */
+/* On desktop (≥769px): hidden — the sticky .learning-pin handles photo display.
+   On mobile (≤768px): shows each chapter's illustration directly in the chapter,
+   so it scrolls with the content and is never off-screen. */
+.learning-chapter-media {
+  display: none; /* hidden on desktop */
+  margin: 0 0 24px;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 2px 0 #c9c5b5, 0 4px 0 #b8b2a4, 0 16px 32px rgba(16, 58, 50, 0.10);
+  background: #f4f1e9;
+  /* Paper-clip corner decoration */
+  position: relative;
+}
+
+.learning-chapter-media::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 28px 28px 0;
+  border-color: transparent #c9c5b5 transparent transparent;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.learning-chapter-media::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 24px 24px 0;
+  border-color: transparent #f4f1e9 transparent transparent;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.learning-chapter-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  aspect-ratio: 4 / 3;
+}
+
+/* Show inline media on mobile; hide pin and its frames */
+@media (max-width: 768px) {
+  .learning-chapter-media {
+    display: block;
+  }
+}
+
+/* ─── Scroll rail ────────────────────────────────────────────────────────── */
+.learning-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* Small top padding so the first chapter text has breathing room */
+  padding-top: 16px;
+}
+
+/* ─── Chapter articles ───────────────────────────────────────────────────── */
+.learning-chapter {
+  position: relative;
+  padding: 64px 0 80px;
+  border-bottom: 1px solid #c9c5b5;
+}
+
+.learning-chapter:last-child {
+  border-bottom: none;
+}
+
+/* Gold left accent grows in as chapter-progress increases */
+.learning-chapter::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 64px;
+  bottom: 80px;
+  width: 2px;
+  background: #b88a35;
+  transform: scaleY(var(--chapter-progress, 0));
+  transform-origin: top center;
+  transition: transform 60ms linear;
+}
+
+@media (max-width: 850px) {
+  .learning-chapter::before {
+    left: -16px;
+  }
+}
+
+/* ─── Chapter copy ───────────────────────────────────────────────────────── */
+.learning-copy {
+  position: relative;
+}
+
+.learning-chapter-number {
+  display: block;
+  font: 500 13px / 1 Arial, sans-serif;
+  letter-spacing: 0.18em;
+  color: #b88a35; /* gold */
+  margin-bottom: 14px;
+}
+
+.learning-copy .learning-kicker {
+  font: 600 13px / 1.5 Arial, sans-serif;
+  letter-spacing: 0.14em;
+  color: #52675b;
+  margin: 0 0 12px;
+  text-transform: uppercase;
+}
+
+.learning-copy h3 {
+  font: 400 clamp(32px, 4.2vw, 54px) / 1.06 Georgia, serif;
+  letter-spacing: -0.035em;
+  color: #103a32;
+  margin: 0 0 24px;
+}
+
+.learning-body {
+  font: 400 17px / 1.7 Arial, sans-serif;
+  color: #466057;
+  max-width: 52ch;
+  margin: 0;
+}
+
+/* ─── Photo credit figures (accessible captions + reduced-motion photos) ── */
+.learning-photo-credit {
+  margin: 32px 0 0;
+  padding: 16px 0 0;
+  border-top: 1px solid #c9c5b5;
+}
+
+.learning-photo-credit figcaption {
+  font: 400 13px / 1.6 Arial, sans-serif;
+  color: #52675b;
+  margin: 0;
+  padding-top: 10px;
+}
+
+/* The actual img inside the figure is hidden in normal (motion-enabled) view —
+   the pin layer shows the photo there. Only shown when motion is reduced.
+   Use !important to override .public-page img { display: block } (specificity 0-1-1
+   beats this class's 0-1-0 without the override). */
+.learning-reduced-img {
+  display: none !important;
+  width: 100%;
+  border-radius: 3px;
+  aspect-ratio: 10 / 7;
+  object-fit: cover;
+}
+
+/* ─── Reduced-motion layout: show all photos inline ─────────────────────── */
+.learning-scene[data-motion='reduced'] .learning-pin {
+  display: none;
+}
+
+.learning-scene[data-motion='reduced'] .learning-stage {
+  grid-template-columns: 1fr;
+}
+
+.learning-scene[data-motion='reduced'] .learning-reduced-img {
+  display: block !important;
+  margin-bottom: 12px;
+}
+
+/* Chapter media is always shown in reduced-motion (desktop collapsed to 1col) */
+.learning-scene[data-motion='reduced'] .learning-chapter-media {
+  display: block;
+}
+
+.learning-scene[data-motion='reduced'] .learning-chapter::before {
+  transform: scaleY(1);
+}
+
+.learning-scene[data-motion='reduced'] .learning-thread::after {
+  transform: scaleY(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Belt-and-suspenders: also apply via media query for browsers that skip JS */
+  .learning-pin {
+    display: none;
+  }
+  .learning-stage {
+    grid-template-columns: 1fr;
+  }
+  .learning-reduced-img {
+    display: block !important;
+    margin-bottom: 12px;
+  }
+  .learning-chapter-media {
+    display: block; /* show chapter illustrations inline */
+  }
+  .learning-scene,
+  .learning-scene * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .learning-chapter::before {
+    transform: scaleY(1);
+  }
+  .learning-thread::after {
+    transform: scaleY(1);
+  }
+}
+
+/* ─── Responsive: 360–768 px ─────────────────────────────────────────────── */
+@media (max-width: 850px) {
+  .learning-intro {
+    padding: 56px 24px 40px;
+  }
+
+  .learning-intro h2 {
+    font-size: clamp(38px, 10vw, 56px);
+  }
+
+  .learning-stage {
+    padding: 0 24px 56px;
+  }
+
+  .learning-chapter {
+    padding: 40px 0 56px;
+  }
+
+  .learning-copy h3 {
+    font-size: clamp(30px, 8vw, 44px);
+  }
+}
+
+@media (max-width: 520px) {
+  .learning-intro {
+    padding: 44px 20px 32px;
+  }
+
+  .learning-intro h2 {
+    font-size: clamp(34px, 11vw, 48px);
+  }
+
+  .learning-stage {
+    padding: 0 20px 44px;
+  }
+
+  .learning-chapter {
+    padding: 32px 0 44px;
+  }
+
+  .learning-copy h3 {
+    font-size: clamp(28px, 9vw, 40px);
+  }
+
+  .learning-body {
+    font-size: 16px;
+  }
+}
+
+/* ─── No horizontal overflow ─────────────────────────────────────────────── */
+/* Only apply overflow-x:hidden to elements that cannot contain sticky children */
+.learning-intro,
+.learning-pin,
+.learning-rail {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Prevent the stage from causing horizontal scroll without breaking sticky */
+.learning-stage {
+  max-width: 100%;
+}

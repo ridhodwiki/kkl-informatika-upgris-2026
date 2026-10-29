@@ -1,0 +1,195 @@
+/* ─── Mobile Navbar Animation ──────────────────────────────────────────────
+   Adds hamburger→X icon transition and menu panel slide/fade.
+   Works entirely via CSS on the existing .nav-toggle + #public-nav markup.
+   No changes to protected home.php, style.css, or main.js required.
+
+   Design tokens match the established emerald/gold editorial system:
+     emerald header bg: var(--ink, #103a32)
+     gold accent:       var(--accent, #d6aa52)
+     white text:        var(--white, #fffdf8)
+
+   Only takes effect at ≤850px (where .nav-toggle is display:block).
+   Desktop navigation is completely unaffected.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* ── Hamburger icon via pseudo-elements ─────────────────────────────────── */
+/* Hide the "Menu" text visually while keeping it accessible */
+@media (max-width: 850px) {
+  .public-page .nav-toggle {
+    /* Keep text accessible to screen readers but visually show icon bars */
+    font-size: 0 !important; /* hide "Menu" text visually */
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    position: relative;
+    overflow: hidden;
+    /* Keep the border from style.css */
+  }
+
+  /* Screen-reader label: keep "Menu" accessible */
+  .public-page .nav-toggle::before,
+  .public-page .nav-toggle::after {
+    content: none; /* will be set per-element below */
+  }
+
+  /* We use a single pseudo-element approach:
+     The button shows 3 bars made from box-shadow on ::before.
+     On open (aria-expanded="true") it becomes an X via rotation. */
+
+  /* Top bar */
+  .public-page .nav-toggle span.nav-icon,
+  .public-page .nav-toggle-bar {
+    display: none; /* not in markup; use pure CSS approach */
+  }
+
+  /* Pure CSS hamburger: use box-shadow to create 3 bars on one element */
+  /* We repurpose the ::before pseudo for the center bar */
+  .public-page .nav-toggle::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 1px;
+    position: absolute;
+    /* Three bars via box-shadow (top and bottom bars) */
+    box-shadow:
+      0 -6px 0 currentColor,
+      0  6px 0 currentColor;
+    transform-origin: center;
+    transition:
+      transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 240ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* X state: rotate center bar 45°, collapse the shadows to 0 distance, rotate them */
+  .public-page .nav-toggle[aria-expanded='true']::before {
+    transform: rotate(45deg);
+    box-shadow:
+      0 0 0 transparent,
+      0 0 0 transparent;
+  }
+
+  /* ::after creates the second diagonal of the X */
+  .public-page .nav-toggle::after {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 1px;
+    position: absolute;
+    transform: rotate(0deg) scaleX(1);
+    transform-origin: center;
+    transition:
+      transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 240ms cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0; /* hidden by default — only appears as X cross-bar */
+  }
+
+  .public-page .nav-toggle[aria-expanded='true']::after {
+    transform: rotate(-45deg);
+    opacity: 1;
+  }
+}
+
+/* ── Menu panel animation ───────────────────────────────────────────────── */
+@media (max-width: 850px) {
+  /* When .js-ready, the nav is hidden by default (set in style.css).
+     We add a transition so it slides in gracefully when .is-open is added. */
+  .public-page.js-ready .site-header nav {
+    /* Start state: hidden above, collapsed */
+    transform: translateY(-8px);
+    opacity: 0;
+    pointer-events: none;
+    /* Transition applies when going to/from is-open */
+    transition:
+      transform 260ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 260ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .public-page.js-ready .site-header nav.is-open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* When not .js-ready (no JS), the nav is always visible — no transition needed */
+  .public-page:not(.js-ready) .site-header nav {
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* ── Staggered link reveal ──────────────────────────────────────────────── */
+@media (max-width: 850px) {
+  .public-page.js-ready .site-header nav a {
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 220ms ease,
+      transform 220ms ease;
+    /* Stagger delay: links enter sequentially */
+  }
+
+  .public-page.js-ready .site-header nav.is-open a {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Stagger: nth-child delays (6 nav links + admin = 7 items) */
+  .public-page.js-ready .site-header nav.is-open a:nth-child(1) { transition-delay:  20ms; }
+  .public-page.js-ready .site-header nav.is-open a:nth-child(2) { transition-delay:  55ms; }
+  .public-page.js-ready .site-header nav.is-open a:nth-child(3) { transition-delay:  90ms; }
+  .public-page.js-ready .site-header nav.is-open a:nth-child(4) { transition-delay: 125ms; }
+  .public-page.js-ready .site-header nav.is-open a:nth-child(5) { transition-delay: 160ms; }
+  .public-page.js-ready .site-header nav.is-open a:nth-child(6) { transition-delay: 195ms; }
+
+  /* On close: all links fade instantly (no stagger delay when closing) */
+  .public-page.js-ready .site-header nav:not(.is-open) a {
+    transition-delay: 0ms !important;
+  }
+
+  /* Ensure closed links are not keyboard-focusable.
+     The nav itself has display:none set by style.css when .js-ready and not .is-open,
+     so this is belt-and-suspenders for any edge cases. */
+  .public-page.js-ready .site-header nav:not(.is-open) a {
+    pointer-events: none;
+  }
+}
+
+/* ── Reduced-motion: immediate transitions, no decorative animation ──── */
+@media (prefers-reduced-motion: reduce) {
+  .public-page .nav-toggle::before,
+  .public-page .nav-toggle::after {
+    transition: none !important;
+  }
+
+  .public-page.js-ready .site-header nav,
+  .public-page.js-ready .site-header nav a {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important; /* ensure visible when open */
+  }
+
+  /* Still hide when closed (non-animated) */
+  .public-page.js-ready .site-header nav:not(.is-open) {
+    opacity: 0 !important;
+    pointer-events: none;
+  }
+
+  .public-page.js-ready .site-header nav.is-open {
+    opacity: 1 !important;
+  }
+}
+
+/* ── Desktop: completely unchanged ───────────────────────────────────────── */
+/* All rules above are scoped to max-width: 850px.
+   At ≥851px the nav-toggle is display:none (style.css), so none of these
+   rules affect desktop navigation. */

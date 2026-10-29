@@ -3,7 +3,7 @@
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
 header('Referrer-Policy: no-referrer');
-header('Content-Security-Policy: default-src \'self\'; img-src \'self\' data: https:; style-src \'self\' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src \'self\'; frame-src https://www.youtube.com; connect-src \'self\';');
+header('Content-Security-Policy: default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src \'self\'; frame-src https://www.youtube.com; connect-src \'self\' blob:;');
 
 require __DIR__ . '/../app/core/Database.php';
 require __DIR__ . '/../app/core/helpers.php';

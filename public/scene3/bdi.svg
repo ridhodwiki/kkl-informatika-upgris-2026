@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="1000" height="700">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b8d4e8"/>
+      <stop offset="100%" stop-color="#e0edf5"/>
+    </linearGradient>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d4c9b8"/>
+      <stop offset="100%" stop-color="#c2b8a6"/>
+    </linearGradient>
+  </defs>
+  <!-- Sky -->
+  <rect width="1000" height="700" fill="url(#sky)"/>
+  <!-- Ground -->
+  <rect y="520" width="1000" height="180" fill="#c8b898"/>
+  <!-- Building main body -->
+  <rect x="140" y="200" width="720" height="340" fill="url(#wall)" rx="4"/>
+  <!-- Roof overhang -->
+  <rect x="100" y="175" width="800" height="35" fill="#a89880" rx="2"/>
+  <!-- Entrance canopy -->
+  <rect x="370" y="340" width="260" height="20" fill="#8a7a6a" rx="2"/>
+  <!-- Columns -->
+  <rect x="380" y="360" width="28" height="160" fill="#b8a890"/>
+  <rect x="590" y="360" width="28" height="160" fill="#b8a890"/>
+  <!-- Door -->
+  <rect x="440" y="410" width="120" height="110" fill="#7a6e60" rx="2"/>
+  <!-- Windows left wing -->
+  <rect x="180" y="260" width="100" height="70" fill="#8ab0c8" rx="2"/>
+  <rect x="320" y="260" width="100" height="70" fill="#8ab0c8" rx="2"/>
+  <!-- Windows right wing -->
+  <rect x="580" y="260" width="100" height="70" fill="#8ab0c8" rx="2"/>
+  <rect x="720" y="260" width="100" height="70" fill="#8ab0c8" rx="2"/>
+  <!-- Windows second row -->
+  <rect x="180" y="370" width="100" height="70" fill="#8ab0c8" rx="2"/>
+  <rect x="320" y="370" width="100" height="70" fill="#8ab0c8" rx="2"/>
+  <rect x="580" y="370" width="100" height="70" fill="#8ab0c8" rx="2"/>
+  <rect x="720" y="370" width="100" height="70" fill="#8ab0c8" rx="2"/>
+  <!-- Logo/sign area -->
+  <rect x="380" y="215" width="240" height="44" fill="#103a32" rx="3"/>
+  <text x="500" y="243" font-family="Arial,sans-serif" font-size="13" fill="#d6aa52" text-anchor="middle" font-weight="700">BALAI DIKLAT INDUSTRI</text>
+  <!-- Flagpoles -->
+  <line x1="200" y1="100" x2="200" y2="200" stroke="#999" stroke-width="3"/>
+  <rect x="200" y="100" width="44" height="28" fill="#c0392b"/>
+  <rect x="200" y="128" width="44" height="14" fill="#ffffff"/>
+  <line x1="800" y1="100" x2="800" y2="200" stroke="#999" stroke-width="3"/>
+  <rect x="800" y="100" width="44" height="28" fill="#c0392b"/>
+  <rect x="800" y="128" width="44" height="14" fill="#ffffff"/>
+  <!-- Overlay label -->
+  <rect x="0" y="630" width="1000" height="70" fill="rgba(16,58,50,0.82)"/>
+  <text x="32" y="658" font-family="Georgia,serif" font-size="15" fill="#d6aa52" font-weight="400">Balai Diklat Industri Denpasar</text>
+  <text x="32" y="682" font-family="Arial,sans-serif" font-size="13" fill="#a0c4b8">Foto akan ditampilkan setelah dokumentasi KKL tersedia · 20 Agustus 2026</text>
+</svg>

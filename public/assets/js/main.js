@@ -181,4 +181,13 @@ clone.setAttribute('aria-hidden','true');
     window.addEventListener('resize',()=>{rail.classList.add('is-repositioning');rail.scrollLeft=loopWidth();requestAnimationFrame(()=>rail.classList.remove('is-repositioning'));update();});
     requestAnimationFrame(()=>{rail.scrollLeft=loopWidth();update();});
   });
+  // Static (Vercel) build has no backend: accept the form locally, send nothing.
+  document.querySelectorAll('form[data-static-feedback]').forEach(form=>{
+    const thanks=form.querySelector('[data-feedback-thanks]');
+    form.addEventListener('submit',event=>{
+      event.preventDefault();
+      form.reset();
+      if(thanks){thanks.hidden=false;thanks.focus?.();}
+    });
+  });
 });

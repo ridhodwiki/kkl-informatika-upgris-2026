@@ -20,7 +20,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 <meta name="twitter:image" content="<?= url('assets/img/hero-bali.jpg') ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=13">
+<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=14">
 </head>
 <body class="public-page">
 <a class="skip-link" href="#tentang">Lewati ke konten utama</a>

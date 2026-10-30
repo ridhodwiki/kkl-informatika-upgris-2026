@@ -3,7 +3,7 @@ import { chapterProgress, sceneProgress } from './geometry.js'
 
 // ─── Content ─────────────────────────────────────────────────────────────────
 // All institution names, dates, and times verified against KKL itinerary data
-// (seed_destinations.sql). The retail photo is a pre-trip placeholder; its
+// (seed_destinations.sql). The retail photo is a pre-trip illustration; its
 // caption does not imply it documents a specific verified Bali location.
 
 const chapters = [
@@ -35,7 +35,7 @@ const chapters = [
         width: 1000,
         height: 700,
         alt: 'Display produk kerajinan dan suvenir khas Bali di ruang ritel',
-        caption: 'Eksplorasi produksi dan distribusi suvenir khas Bali · 19 Agustus 2026 · 09.30–11.00 WITA · Foto: ilustrasi placeholder, bukan dokumentasi lapangan terverifikasi',
+        caption: 'Eksplorasi produksi dan distribusi suvenir khas Bali · 19 Agustus 2026 · 09.30–11.00 WITA · Foto: ilustrasi, bukan dokumentasi lapangan terverifikasi',
       },
     ],
   },

@@ -3,4 +3,4 @@ Allow: /
 
 Disallow: /admin/
 
-Sitemap: /kkl-informatika-upgris-2026/sitemap.xml
+Sitemap: https://kkl-informatika-upgris-2026-static.vercel.app/sitemap.xml

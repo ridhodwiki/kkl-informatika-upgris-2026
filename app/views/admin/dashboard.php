@@ -1,4 +1,4 @@
-﻿<?php $title = e($siteTitle ?? 'Dashboard Admin') . ' â€” Admin'; require __DIR__ . '/../partials/admin_header.php'; ?>
+﻿<?php $title = e($siteTitle ?? 'Dashboard Admin') . ' — Admin'; require __DIR__ . '/../partials/admin_header.php'; ?>
 <div class="admin-shell"><div class="admin-top"><h1>Dashboard KKL</h1><div><a class="btn btn-ghost" href="<?= e(url('/')) ?>">Lihat Website</a> <a class="btn btn-primary" href="<?= e(url('admin/logout.php')) ?>">Keluar</a></div></div>
 <div class="admin-grid">
 <section class="admin-panel"><h2>Logo &amp; Judul Website</h2>
@@ -36,7 +36,7 @@
 
 <section class="admin-panel"><h2>Moderasi Feedback</h2>
 <?php foreach ($feedbacks as $f): ?><div class="feedback-admin">
-<strong><?= e($f['name']) ?> â€” <?= (int)$f['rating'] ?>/5</strong><p><?= e($f['message']) ?></p>
+<strong><?= e($f['name']) ?> — <?= (int)$f['rating'] ?>/5</strong><p><?= e($f['message']) ?></p>
 <?php if (!$f['approved']): ?><form method="post" action="<?= e(url('admin/approve_feedback.php')) ?>" style="display:inline"><?= csrf_field() ?><input type="hidden" name="id" value="<?= (int)$f['id'] ?>"><button class="btn btn-primary" type="submit">Setujui</button></form><?php endif; ?>
 <form method="post" action="<?= e(url('admin/delete.php')) ?>" style="display:inline" onsubmit="return confirm('Hapus feedback?')"><?= csrf_field() ?><input type="hidden" name="type" value="feedback"><input type="hidden" name="id" value="<?= (int)$f['id'] ?>"><button class="btn btn-ghost" type="submit">Hapus</button></form>
 </div><?php endforeach; ?></section>

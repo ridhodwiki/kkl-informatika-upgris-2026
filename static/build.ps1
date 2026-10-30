@@ -58,14 +58,15 @@ Get-ChildItem (Join-Path $src "uploads\gallery") -File | Where-Object { $_.Exten
 }
 # NOTE: files deleted from public/uploads are not removed here. Run
 # tools/export-static.php for the DB-driven gallery/profile markup.
+# TODO: add image compression if build size needs another pass.
 
 # 8. favicon (if present)
-$favicon = Join-Path $src "favicon.ico"
-if (Test-Path $favicon) {
-    Copy-Item $favicon $out -Force
-    Write-Host "[8] Copied favicon.ico"
-} else {
-    Write-Host "[8] No favicon.ico found (skipped)"
+foreach ($icon in @('favicon.svg', 'favicon.ico')) {
+    $favicon = Join-Path $src $icon
+    if (Test-Path $favicon) {
+        Copy-Item $favicon $out -Force
+        Write-Host "[8] Copied $icon"
+    }
 }
 
 Write-Host "`n=== Build complete ===`n"

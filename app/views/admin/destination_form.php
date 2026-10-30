@@ -4,7 +4,7 @@
 <?php if (isset($error) && $error): ?><div class="alert"><?= e($error) ?></div><?php endif; ?>
 <label>Hari ke-<input type="number" name="day_no" min="1" required value="<?= e($item['day_no']) ?>"></label>
 <label>Urutan destinasi<input type="number" name="sort_order" min="1" required value="<?= e($item['sort_order']) ?>"></label>
-<label>Rute perjalanan<input name="route" maxlength="255" placeholder="Contoh: Semarang â†’ Gilimanuk" value="<?= e($item['route']) ?>"></label>
+<label>Rute perjalanan<input name="route" maxlength="255" placeholder="Contoh: Semarang → Gilimanuk" value="<?= e($item['route']) ?>"></label>
 <label>Nama destinasi<input name="name" required maxlength="160" value="<?= e($item['name']) ?>"></label>
 <label>Tanggal perjalanan<input type="date" name="visit_date" value="<?= e($item['visit_date']) ?>"></label>
 <label>Deskripsi rundown<textarea name="description" rows="5"><?= e($item['description']) ?></textarea></label>

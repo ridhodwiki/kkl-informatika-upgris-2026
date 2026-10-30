@@ -17,7 +17,9 @@
 @media (max-width: 850px) {
   .public-page .nav-toggle {
     /* Keep text accessible to screen readers but visually show icon bars */
-    font-size: 0 !important; /* hide "Menu" text visually */
+    font-size: inherit !important;
+    color: transparent !important; /* hide "Menu" text visually, keep aria-label */
+    text-shadow: 0 0 0 transparent;
     width: 44px;
     height: 44px;
     padding: 0;

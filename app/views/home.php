@@ -8,16 +8,17 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= e($pageTitle ?? $siteTitle) ?></title>
 <meta name="description" content="Dokumentasi perjalanan Kuliah Kerja Lapangan Program Studi Informatika UPGRIS 2026 — 18–22 Agustus 2026, Bali. Cerita, foto, video, dan kesan para pembuat.">
-<link rel="canonical" href="<?= url('/') ?>">
+<link rel="canonical" href="https://kkl-informatika-upgris-2026-static.vercel.app/">
 <meta property="og:title" content="<?= e($siteTitle) ?>">
 <meta property="og:description" content="Dokumentasi perjalanan Kuliah Kerja Lapangan Program Studi Informatika UPGRIS 2026 — 18–22 Agustus 2026, Bali.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="<?= url('/') ?>">
-<meta property="og:image" content="<?= url('assets/img/hero-bali.jpg') ?>">
+<meta property="og:url" content="https://kkl-informatika-upgris-2026-static.vercel.app/">
+<meta property="og:image" content="https://kkl-informatika-upgris-2026-static.vercel.app/assets/img/hero-bali.jpg">
 <meta property="og:image:width" content="2000">
 <meta property="og:image:height" content="1333">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="<?= url('assets/img/hero-bali.jpg') ?>">
+<meta name="twitter:image" content="https://kkl-informatika-upgris-2026-static.vercel.app/assets/img/hero-bali.jpg">
+<link rel="icon" href="<?= url('favicon.svg') ?>" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=14">
@@ -43,7 +44,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 </header>
 
 <div class="hero-stage">
-  <section class="hero reveal" id="beranda" data-diorama="fallback">
+  <section class="hero reveal" id="beranda" data-diorama="active">
     <div class="hero-content">
       <h1>KKL Bali 2026</h1>
        <p>Satu Perjalanan. Seribu Kenangan.</p>

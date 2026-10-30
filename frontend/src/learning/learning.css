@@ -112,10 +112,10 @@
   position: sticky;
   /* Offset below header (nav ~76px + small gap) */
   top: calc(var(--hero-sticky-top, 76px) + 24px);
-  /* Explicit height: the pin must have a height for absolute-positioned frames inside.
-     Limit on short landscape screens — never clip the viewport. */
-  height: min(calc(100svh - var(--hero-sticky-top, 76px) - 48px), 600px);
-  max-height: calc(100svh - var(--hero-sticky-top, 76px) - 48px);
+  /* Every Scene 3 SVG uses a 1000 × 700 viewBox. Keep pin same ratio so
+     captions and edges never crop or leave large blank bands. */
+  aspect-ratio: 10 / 7;
+  height: auto;
   overflow: hidden;
   border-radius: 3px;
   box-shadow: 0 2px 0 #c9c5b5, 0 4px 0 #b8b2a4, 0 20px 40px rgba(16, 58, 50, 0.12);
@@ -158,7 +158,6 @@
 @media (min-width: 851px) and (max-width: 1200px) {
   .learning-pin {
     margin-right: 24px;
-    height: min(calc(100svh - var(--hero-sticky-top, 76px) - 48px), 520px);
   }
 }
 
@@ -166,10 +165,11 @@
   .learning-pin {
     position: sticky;
     top: calc(var(--hero-sticky-top, 76px) + 16px);
-    /* On 769–850px tablets: height is viewport-fraction-constrained */
-    height: min(48vw, calc(100svh - var(--hero-sticky-top, 76px) - 80px));
-    max-height: min(48vw, calc(100svh - var(--hero-sticky-top, 76px) - 80px));
-    min-height: 200px;
+    /* Preserve SVG aspect ratio on tablet widths. */
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    max-height: none;
     margin-bottom: 32px;
     margin-right: 0;
     align-self: start;
@@ -215,7 +215,9 @@
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* Illustrations carry baked-in captions; contain keeps every edge visible. */
+  object-fit: contain;
+  background: #f4f1e9;
   /* Subtle parallax: translateY driven by --frame-parallax */
   transform: translateY(var(--frame-parallax, 0));
   transition: transform 80ms linear;
@@ -287,8 +289,7 @@
   display: block;
   width: 100%;
   height: auto;
-  object-fit: cover;
-  aspect-ratio: 4 / 3;
+  object-fit: contain;
 }
 
 /* Show inline media on mobile; hide pin and its frames */

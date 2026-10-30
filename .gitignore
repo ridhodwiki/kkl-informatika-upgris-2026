@@ -17,7 +17,11 @@ config/config.php
 public/uploads/gallery/*
 public/uploads/branding/*
 public/uploads/profiles/*
+!public/uploads/gallery/*.webp
+!public/uploads/gallery/index.html
+!public/uploads/gallery/.htaccess
 !public/uploads/profiles/*.jpg
+!public/uploads/profiles/profile_*.webp
 !public/uploads/profiles/*.webp
 !public/uploads/profiles/index.html
 !public/uploads/profiles/.htaccess

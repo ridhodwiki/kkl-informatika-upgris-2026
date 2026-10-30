@@ -155,3 +155,18 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 @media(max-width:850px){.public-page .hero-stage{height:150svh}.public-page .hero-content{padding-bottom:44px}}
 .public-page .hero-stage > .hero{position:sticky;top:var(--hero-sticky-top,76px);height:calc(100svh - var(--hero-sticky-top,76px));min-height:0}
 @media(prefers-reduced-motion:reduce){.public-page .hero-stage{height:auto}.public-page .hero-stage > .hero{position:relative;top:auto;height:auto;min-height:clamp(560px,calc(100svh - 76px),700px)}}
+
+/* --- Mobile header: hamburger placement + menu reveal --------------------- */
+@keyframes publicNavReveal{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.public-page .nav-toggle{transition:background .2s ease,color .2s ease,border-color .2s ease,transform .15s ease}
+.public-page .nav-toggle:active{transform:scale(.94)}
+.public-page .nav-toggle[aria-expanded="true"]{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+@media(max-width:850px){
+  .public-page .nav-wrap{flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px 16px}
+  .public-page .brand{flex:1 1 auto;min-width:0}
+  .public-page .nav-toggle{display:block;position:static;top:auto;right:auto;margin-left:auto;flex:0 0 auto}
+  .public-page .site-header nav{flex:1 0 100%;justify-content:flex-start;flex-wrap:wrap;column-gap:18px;row-gap:2px}
+  .public-page.js-ready .site-header nav.is-open{display:flex;animation:publicNavReveal .26s ease both}
+}
+@media(max-width:520px){.public-page .site-header nav{column-gap:14px}}
+@media(prefers-reduced-motion:reduce){.public-page.js-ready .site-header nav.is-open{animation:none}.public-page .nav-toggle{transition:none}}

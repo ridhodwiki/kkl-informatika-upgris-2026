@@ -19,6 +19,11 @@ navToggle?.addEventListener("click",()=>{
    (navPreviousFocus||navToggle).focus();
    navPreviousFocus=null;
  });
+ nav?.querySelectorAll("a").forEach(link=>link.addEventListener("click",()=>{
+   nav.classList.remove("is-open");
+   navToggle.setAttribute("aria-expanded","false");
+   navPreviousFocus=null;
+ }));
 const dialog=document.querySelector("#public-lightbox");
 const galleryImages=[...document.querySelectorAll(".gallery-card img")].filter(image=>!image.closest("[aria-hidden=\"true\"]"));
 let lightboxIndex=0;

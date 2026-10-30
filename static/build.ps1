@@ -35,21 +35,29 @@ Sync-Dir (Join-Path $src "assets\models") (Join-Path $out "assets\models")
 
 # 5. Vite built bundle (dist/)
 Write-Host "[5] Copying Vite bundle..."
+if (Test-Path (Join-Path $out "dist")) { Remove-Item (Join-Path $out "dist") -Recurse -Force }
 Sync-Dir (Join-Path $src "dist") (Join-Path $out "dist")
 
 # 6. Scene 3 SVG illustrations
 Write-Host "[6] Copying Scene 3 illustrations..."
 Sync-Dir (Join-Path $src "scene3") (Join-Path $out "scene3")
 
-# 7. Profile placeholder photos (committed JPGs only — no real WebPs)
-Write-Host "[7] Copying profile placeholder photos..."
+# 7. Profile photos + gallery documentation (committed webp images)
+Write-Host "[7] Copying profile photos..."
 $profileDest = Join-Path $out "uploads\profiles"
 New-Item -ItemType Directory -Path $profileDest -Force | Out-Null
-Get-ChildItem (Join-Path $src "uploads\profiles") -Filter "*.jpg" | ForEach-Object {
+Get-ChildItem (Join-Path $src "uploads\profiles") -File | Where-Object { $_.Extension -in ".jpg", ".webp" } | ForEach-Object {
     Copy-Item $_.FullName $profileDest -Force
 }
-# NOTE: Real uploaded WebPs (profile_*.webp) are gitignored for Vercel —
-# they may contain personal photos of team members. Copy manually if approved.
+
+Write-Host "[7b] Copying gallery photos..."
+$galleryDest = Join-Path $out "uploads\gallery"
+New-Item -ItemType Directory -Path $galleryDest -Force | Out-Null
+Get-ChildItem (Join-Path $src "uploads\gallery") -File | Where-Object { $_.Extension -in ".webp", ".jpg" } | ForEach-Object {
+    Copy-Item $_.FullName $galleryDest -Force
+}
+# NOTE: files deleted from public/uploads are not removed here. Run
+# tools/export-static.php for the DB-driven gallery/profile markup.
 
 # 8. favicon (if present)
 $favicon = Join-Path $src "favicon.ico"

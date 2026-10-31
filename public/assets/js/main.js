@@ -73,10 +73,23 @@ if("IntersectionObserver" in window){
     entries.forEach(entry=>{
       if(!entry.isIntersecting)return;
       sectionLinks.forEach(link=>link.classList.toggle("is-active",new URL(link.href).hash===`#${entry.target.id}`));
+      movePill();
     });
   },{rootMargin:"-20% 0px -65%",threshold:0});
   sections.forEach(section=>sectionObserver.observe(section));
 }
+
+// Sliding pill under the active nav link (hidden on mobile, where nav wraps).
+const pill=document.querySelector(".nav-pill");
+function movePill(){
+  if(!pill)return;
+  const active=nav?.querySelector("a.is-active");
+  if(window.innerWidth<=850||!active||!active.offsetWidth){pill.classList.remove("is-on");return;}
+  pill.style.width=active.offsetWidth+"px";
+  pill.style.transform=`translateX(${active.offsetLeft}px)`;
+  pill.classList.add("is-on");
+}
+movePill();
 dialog?.addEventListener("click",event=>{
   if(event.target===dialog||event.target.closest("[data-lightbox-close]"))dialog.close();
   if(event.target.closest("[data-lightbox-prev]"))showImage(lightboxIndex-1);
@@ -165,8 +178,9 @@ if(reduced){
 }
 // Re-measure after web fonts settle: a fallback font can wrap the mobile
 // header into two rows and leave --hero-sticky-top 40px too tall.
-window.addEventListener("load",applyScrollState);
-document.fonts?.ready.then(()=>applyScrollState()).catch(()=>{});
+window.addEventListener("load",()=>{applyScrollState();movePill();});
+document.fonts?.ready.then(()=>{applyScrollState();movePill();}).catch(()=>{});
+window.addEventListener("resize",movePill,{passive:true});
 
 // Filter perjalanan per hari
 const tabs=document.querySelectorAll(".day-tab");

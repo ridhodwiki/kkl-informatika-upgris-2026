@@ -257,3 +257,21 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .public-page .star-rating input:checked ~ label .star-glyph{animation:starPop .28s ease}
 .public-page .star-rating input:focus-visible + label .star-glyph{outline:2px solid var(--accent,#d6aa52);outline-offset:3px;border-radius:4px}
 @keyframes starPop{50%{transform:translateY(-4px) scale(1.22)}}
+
+/* --- Active nav pill -------------------------------------------------------- */
+/* .nav-pill is positioned by main.js over the link that already carries
+   .is-active; without JS it stays hidden and the plain colour change remains. */
+.public-page .site-header nav{position:relative}
+.public-page .site-header nav a{position:relative;z-index:1}
+.public-page .nav-pill{position:absolute;left:0;top:0;height:100%;width:0;border-radius:8px;background:rgba(217,182,111,.16);box-shadow:inset 0 0 0 1px rgba(217,182,111,.4);pointer-events:none;opacity:0;transition:transform .25s ease,width .25s ease,opacity .2s ease;will-change:transform,width}
+.public-page .nav-pill.is-on{opacity:1}
+@media(max-width:850px){.public-page .nav-pill{display:none}}
+
+/* --- Heading accent underline ---------------------------------------------- */
+/* Drawn by clip-path when the section h2 gets .visible from the reveal
+   observer; without JS the media query below shows it immediately. */
+.public-page h2{position:relative}
+.public-page h2::after{content:"";position:absolute;left:0;bottom:-14px;width:68px;height:4px;border-radius:4px;background:var(--accent,#d6aa52);clip-path:inset(0 100% 0 0);transition:clip-path .65s cubic-bezier(.22,.61,.36,1) .2s}
+.public-page h2.visible::after{clip-path:inset(0)}
+.public-page:not(.js-ready) h2::after{clip-path:inset(0)}
+@media(prefers-reduced-motion:reduce){.public-page h2::after{transition:none}}

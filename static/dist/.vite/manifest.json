@@ -1,6 +1,6 @@
 {
   "src/journey/index.js": {
-    "file": "assets/journey.HCEtKRD1.js",
+    "file": "assets/journey.8D1mbChH.js",
     "name": "journey",
     "src": "src/journey/index.js",
     "isDynamicEntry": true,
@@ -9,7 +9,7 @@
     ]
   },
   "src/main.jsx": {
-    "file": "assets/main.Knrv_lsQ.js",
+    "file": "assets/main.UTtnjj3i.js",
     "name": "main",
     "src": "src/main.jsx",
     "isEntry": true,
@@ -17,7 +17,7 @@
       "src/journey/index.js"
     ],
     "css": [
-      "assets/main.hO9y5RVN.css"
+      "assets/main.CW6bnh28.css"
     ]
   }
 }

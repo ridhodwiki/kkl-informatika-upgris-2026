@@ -51,18 +51,20 @@
 
   /* Pure CSS hamburger: use box-shadow to create 3 bars on one element */
   /* We repurpose the ::before pseudo for the center bar */
+  /* Bars use an explicit token colour: the button's own color is transparent
+     (to hide the "Menu" text), so currentColor would render them invisible. */
   .public-page .nav-toggle::before {
     content: '';
     display: block;
     width: 20px;
     height: 2px;
-    background: currentColor;
+    background: var(--white, #fffdf8);
     border-radius: 1px;
     position: absolute;
     /* Three bars via box-shadow (top and bottom bars) */
     box-shadow:
-      0 -6px 0 currentColor,
-      0  6px 0 currentColor;
+      0 -6px 0 var(--white, #fffdf8),
+      0  6px 0 var(--white, #fffdf8);
     transform-origin: center;
     transition:
       transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
@@ -71,6 +73,7 @@
 
   /* X state: rotate center bar 45°, collapse the shadows to 0 distance, rotate them */
   .public-page .nav-toggle[aria-expanded='true']::before {
+    background: var(--ink, #103a32);
     transform: rotate(45deg);
     box-shadow:
       0 0 0 transparent,
@@ -83,7 +86,7 @@
     display: block;
     width: 20px;
     height: 2px;
-    background: currentColor;
+    background: var(--white, #fffdf8);
     border-radius: 1px;
     position: absolute;
     transform: rotate(0deg) scaleX(1);
@@ -95,6 +98,7 @@
   }
 
   .public-page .nav-toggle[aria-expanded='true']::after {
+    background: var(--ink, #103a32);
     transform: rotate(-45deg);
     opacity: 1;
   }

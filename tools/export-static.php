@@ -52,7 +52,6 @@ $gallery = $pdo->query(
 
 $profiles = $pdo->query('SELECT name, role, bio, photo FROM profiles ORDER BY sort_order, id')->fetchAll();
 $videos = $pdo->query('SELECT title, embed_url FROM videos ORDER BY id')->fetchAll();
-$feedbacks = $pdo->query('SELECT name, rating, message FROM feedback WHERE approved = 1 ORDER BY created_at DESC, id DESC')->fetchAll();
 
 // ─── Blocks ──────────────────────────────────────────────────────────────────
 $galleryHtml = '<div class="empty"><p><strong>Dokumentasi foto akan hadir segera.</strong><br>Foto perjalanan akan diunggah setelah KKL selesai.</p></div>';
@@ -105,19 +104,6 @@ if ($videoHtml === '') {
     $videoHtml = '<div class="empty"><p><strong>Video kenangan segera hadir.</strong><br>Rekaman perjalanan KKL akan ditampilkan di sini.</p></div>';
 }
 
-$starFull = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
-$starEmpty = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
-$feedbackHtml = '';
-foreach ($feedbacks as $fb) {
-    $rating = max(0, min(5, (int) $fb['rating']));
-    $feedbackHtml .= '<div class="feedback-card reveal"><div><strong>' . e($fb['name']) . '</strong>'
-        . '<span class="stars">' . str_repeat($starFull, $rating) . str_repeat($starEmpty, 5 - $rating) . '</span>'
-        . '</div><p>' . e($fb['message']) . '</p></div>';
-}
-if ($feedbackHtml === '') {
-    $feedbackHtml = '<div class="empty"><p>Kesan peserta akan ditampilkan setelah dipublikasikan oleh admin.</p></div>';
-}
-
 // ─── Write static/index.html ─────────────────────────────────────────────────
 $indexPath = $root . '/static/index.html';
 $html = file_get_contents($indexPath);
@@ -130,7 +116,6 @@ $blocks = [
     'gallery' => $galleryHtml,
     'profiles' => $profilesHtml,
     'video' => $videoHtml,
-    'feedback' => $feedbackHtml,
 ];
 
 foreach ($blocks as $name => $markup) {
@@ -179,11 +164,10 @@ foreach (array_unique($sources) as $relative) {
 }
 
 printf(
-    "Exported: %d galeri, %d profil, %d video, %d feedback. Upload disalin: %d.\n",
+    "Exported: %d galeri, %d profil, %d video. Upload disalin: %d.\n",
     count($gallery),
     count($profiles),
     count($videos),
-    count($feedbacks),
     $copied
 );
 if ($missing) {

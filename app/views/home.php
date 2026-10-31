@@ -21,7 +21,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 <link rel="icon" href="<?= url('favicon.svg') ?>" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=14">
+<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=15">
 </head>
 <body class="public-page">
 <a class="skip-link" href="#tentang">Lewati ke konten utama</a>
@@ -135,7 +135,6 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 <label>Cerita / feedback<textarea name="message" required maxlength="1000" rows="5" placeholder="Ceritakan pengalamanmu..."></textarea></label>
 <button class="btn btn-primary" type="submit">Kirim Feedback</button>
 </form></div>
-<div class="container feedback-list"><h3>Suara dari perjalanan</h3><?php foreach ($feedbacks as $fb): ?><div class="feedback-card reveal"><div><strong><?= e($fb['name']) ?></strong><span class="stars"><?= str_repeat('<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>', (int)$fb['rating']) . str_repeat('<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>', 5-(int)$fb['rating']) ?></span></div><p><?= e($fb['message']) ?></p></div><?php endforeach; ?></div>
 </section>
 
 <footer class="footer">
@@ -145,7 +144,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
   </div>
 </footer>
 <dialog id="public-lightbox" class="public-lightbox" aria-label="Pratinjau foto"><button type="button" data-lightbox-close aria-label="Tutup">×</button><button type="button" data-lightbox-prev aria-label="Foto sebelumnya">‹</button><img alt=""><button type="button" data-lightbox-next aria-label="Foto berikutnya">›</button></dialog>
-<script defer src="<?= url('assets/js/main.js') ?>?v=9"></script>
+<script defer src="<?= url('assets/js/main.js') ?>?v=10"></script>
 <?php $dioramaManifest = __DIR__ . '/../../public/dist/.vite/manifest.json'; if (is_file($dioramaManifest)): $dioramaEntry = json_decode(file_get_contents($dioramaManifest), true)['src/main.jsx'] ?? null; if ($dioramaEntry): ?>
 <link rel="stylesheet" href="<?= url('dist/' . $dioramaEntry['css'][0]) ?>">
 <script type="module" src="<?= url('dist/' . $dioramaEntry['file']) ?>"></script>

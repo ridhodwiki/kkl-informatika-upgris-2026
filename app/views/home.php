@@ -21,7 +21,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 <link rel="icon" href="<?= url('favicon.svg') ?>" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=15">
+<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=16">
 </head>
 <body class="public-page">
 <a class="skip-link" href="#tentang">Lewati ke konten utama</a>
@@ -88,7 +88,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 </div></section>
 
 <section id="profil" class="section section-soft">
-<div class="container"><h2 class="reveal">12 pembuat cerita</h2><p class="section-intro">Edit foto dan informasi anggota melalui halaman admin.</p>
+<div class="container"><h2 class="reveal"><span data-count-to="12">12</span> pembuat cerita</h2><p class="section-intro">Edit foto dan informasi anggota melalui halaman admin.</p>
 <div class="profile-grid">
 <?php foreach ($profiles as $profile): ?>
 <article class="profile-card reveal">
@@ -131,7 +131,15 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 <?php if (!empty($_GET['feedback_sent'])): ?><div class="alert" style="color:green">Terima kasih, feedback kamu sudah terkirim dan menunggu moderasi.</div><?php endif; ?>
 <?php if (!empty($_GET['feedback_error'])): ?><div class="alert">Nama (max 100), rating 1-5, dan cerita (max 1000) wajib valid.</div><?php endif; ?>
 <label>Nama<input name="name" required maxlength="100" placeholder="Nama kamu"></label>
-<label>Rating<select name="rating" required><option value="">Pilih rating</option><option value="5">5 — Sangat berkesan</option><option value="4">4 — Berkesan</option><option value="3">3 — Cukup</option><option value="2">2 — Kurang</option><option value="1">1 — Perlu ditingkatkan</option></select></label>
+<fieldset class="rating-field"><legend>Rating</legend>
+<div class="star-rating">
+<input type="radio" id="rating-5" name="rating" value="5" required><label for="rating-5"><span class="star-glyph" aria-hidden="true">&#9733;</span><span class="sr-only">5 - Sangat berkesan</span></label>
+<input type="radio" id="rating-4" name="rating" value="4"><label for="rating-4"><span class="star-glyph" aria-hidden="true">&#9733;</span><span class="sr-only">4 - Berkesan</span></label>
+<input type="radio" id="rating-3" name="rating" value="3"><label for="rating-3"><span class="star-glyph" aria-hidden="true">&#9733;</span><span class="sr-only">3 - Cukup</span></label>
+<input type="radio" id="rating-2" name="rating" value="2"><label for="rating-2"><span class="star-glyph" aria-hidden="true">&#9733;</span><span class="sr-only">2 - Kurang</span></label>
+<input type="radio" id="rating-1" name="rating" value="1"><label for="rating-1"><span class="star-glyph" aria-hidden="true">&#9733;</span><span class="sr-only">1 - Perlu ditingkatkan</span></label>
+</div>
+</fieldset>
 <label>Cerita / feedback<textarea name="message" required maxlength="1000" rows="5" placeholder="Ceritakan pengalamanmu..."></textarea></label>
 <button class="btn btn-primary" type="submit">Kirim Feedback</button>
 </form></div>
@@ -144,7 +152,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
   </div>
 </footer>
 <dialog id="public-lightbox" class="public-lightbox" aria-label="Pratinjau foto"><button type="button" data-lightbox-close aria-label="Tutup">×</button><button type="button" data-lightbox-prev aria-label="Foto sebelumnya">‹</button><img alt=""><button type="button" data-lightbox-next aria-label="Foto berikutnya">›</button></dialog>
-<script defer src="<?= url('assets/js/main.js') ?>?v=10"></script>
+<script defer src="<?= url('assets/js/main.js') ?>?v=11"></script>
 <?php $dioramaManifest = __DIR__ . '/../../public/dist/.vite/manifest.json'; if (is_file($dioramaManifest)): $dioramaEntry = json_decode(file_get_contents($dioramaManifest), true)['src/main.jsx'] ?? null; if ($dioramaEntry): ?>
 <link rel="stylesheet" href="<?= url('dist/' . $dioramaEntry['css'][0]) ?>">
 <script type="module" src="<?= url('dist/' . $dioramaEntry['file']) ?>"></script>

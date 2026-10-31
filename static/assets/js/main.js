@@ -108,6 +108,66 @@ if(reduced||!("IntersectionObserver" in window)){
   });
 }
 
+// Count-up for numbers marked with data-count-to (static markup keeps the real
+// number as text, so no-JS visitors still see it).
+document.querySelectorAll("[data-count-to]").forEach(el=>{
+  const target=parseInt(el.getAttribute("data-count-to"),10);
+  if(!Number.isFinite(target))return;
+  if(reduced||!("IntersectionObserver" in window))return;
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(!entry.isIntersecting)return;
+      io.unobserve(el);
+      const start=performance.now();
+      const tick=now=>{
+        const p=Math.min(1,(now-start)/900);
+        el.textContent=String(Math.round(target*(1-Math.pow(1-p,3))));
+        if(p<1)requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  },{threshold:.6});
+  io.observe(el);
+});
+
+// Scroll-driven chrome: compact header + timeline progress rail.
+const header=document.querySelector(".site-header");
+const journey=document.querySelector(".journey-days");
+let heroSticky="";
+const applyScrollState=()=>{
+  header?.classList.toggle("is-scrolled",window.scrollY>40);
+  if(header){
+    const h=Math.round(header.getBoundingClientRect().height)+"px";
+    if(h!==heroSticky){heroSticky=h;document.body.style.setProperty("--hero-sticky-top",h);}
+  }
+  if(!journey)return;
+  const rect=journey.getBoundingClientRect();
+  const line=window.innerHeight*0.72;
+  const raw=rect.height?(line-rect.top)/rect.height:1;
+  const progress=reduced?1:Math.min(1,Math.max(0,raw));
+  journey.style.setProperty("--progress",progress.toFixed(3));
+  journey.querySelectorAll(".journey-day").forEach(day=>{
+    day.classList.toggle("is-reached",reduced||day.getBoundingClientRect().top<=line);
+  });
+};
+if(reduced){
+  applyScrollState();
+}else{
+  let ticking=false;
+  const schedule=()=>{
+    if(ticking)return;
+    ticking=true;
+    requestAnimationFrame(()=>{applyScrollState();ticking=false;});
+  };
+  applyScrollState();
+  window.addEventListener("scroll",schedule,{passive:true});
+  window.addEventListener("resize",schedule,{passive:true});
+}
+// Re-measure after web fonts settle: a fallback font can wrap the mobile
+// header into two rows and leave --hero-sticky-top 40px too tall.
+window.addEventListener("load",applyScrollState);
+document.fonts?.ready.then(()=>applyScrollState()).catch(()=>{});
+
 // Filter perjalanan per hari
 const tabs=document.querySelectorAll(".day-tab");
 const days=document.querySelectorAll(".journey-day");

@@ -98,7 +98,11 @@ if(reduced||!("IntersectionObserver" in window)){
       io.unobserve(entry.target);
     });
   },{rootMargin:"0px 0px -8% 0px",threshold:.14});
-  revealEls.forEach((el,i)=>{
+  const delays=new Map();
+  revealEls.forEach(el=>{
+    const parent=el.parentElement;
+    const i=delays.get(parent)||0;
+    delays.set(parent,i+1);
     el.style.transitionDelay=Math.min(i*70,560)+"ms";
     io.observe(el);
   });

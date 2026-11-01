@@ -57,14 +57,14 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 </div>
 
 <section id="tentang" class="section">
-  <div class="container two-col">
+  <div class="container two-col reveal">
     <div><h2 class="reveal">Belajar di Bali</h2><p class="section-intro">Belajar di luar kelas, tumbuh bersama.</p></div>
     <div><p>Website ini menjadi ruang digital untuk menyimpan cerita, dokumentasi, video, dan kesan dari perjalanan KKL Informatika UPGRIS 2026.</p><p class="muted">Jadwal dapat berubah sesuai kondisi lapangan dan kesepakatan bersama.</p></div>
   </div>
 </section>
 
 <section id="timeline" class="section section-soft">
-<div class="container"><h2 class="reveal">Jejak perjalanan KKL</h2>
+<div class="container reveal"><h2 class="reveal">Jejak perjalanan KKL</h2>
 <?php $days = []; foreach ($destinations as $destination) { $days[(int)$destination['day_no']][] = $destination; } ?>
 <?php if ($days): ?>
 <nav class="day-tabs" aria-label="Filter perjalanan per hari"><button class="day-tab is-active" type="button" data-day="all" aria-pressed="true">Semua</button><?php foreach (array_keys($days) as $dayNo): ?><button class="day-tab" type="button" data-day="<?= (int)$dayNo ?>" aria-pressed="false">Hari <?= (int)$dayNo ?></button><?php endforeach; ?></nav>
@@ -89,7 +89,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 </div></section>
 
 <section id="profil" class="section section-soft">
-<div class="container"><h2 class="reveal"><span data-count-to="12">12</span> pembuat cerita</h2><p class="section-intro">Edit foto dan informasi anggota melalui halaman admin.</p>
+<div class="container reveal"><h2 class="reveal"><span data-count-to="12">12</span> pembuat cerita</h2><p class="section-intro">Edit foto dan informasi anggota melalui halaman admin.</p>
 <div class="profile-grid">
 <?php foreach ($profiles as $profile): ?>
 <article class="profile-card reveal">
@@ -108,7 +108,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 </section>
 
 <section id="galeri" class="section section-soft">
-<div class="container"><h2 class="reveal">Galeri perjalanan</h2><p class="section-intro">Jelajahi dokumentasi KKL dalam satu rangkaian cerita visual.</p>
+<div class="container reveal"><h2 class="reveal">Galeri perjalanan</h2><p class="section-intro">Jelajahi dokumentasi KKL dalam satu rangkaian cerita visual.</p>
 <?php $destinationById = []; foreach ($destinations as $destination) { $destinationById[(int)$destination['id']] = $destination; } $galleryItems = []; foreach ($gallery as $item) { $destination = $destinationById[(int)($item['destination_id'] ?? 0)] ?? null; $item['destination_name'] = $destination['name'] ?? 'Dokumentasi lainnya'; $item['place_description'] = $destination['place_description'] ?? ''; $item['address'] = $destination['address'] ?? $item['location']; $item['day_no'] = (int)($destination['day_no'] ?? PHP_INT_MAX); $item['sort_order'] = (int)($destination['sort_order'] ?? PHP_INT_MAX); $galleryItems[] = $item; } usort($galleryItems, fn($a, $b) => [$a['day_no'], $a['sort_order'], $a['created_at'] ?? '', $a['id'] ?? 0] <=> [$b['day_no'], $b['sort_order'], $b['created_at'] ?? '', $b['id'] ?? 0]); ?>
 <?php if ($galleryItems): ?>
 <div class="gallery-rail-wrap gallery-rail-global"><button class="gallery-rail-button gallery-rail-prev" type="button" aria-label="Foto sebelumnya">‹</button><div class="gallery-rail" tabindex="0" aria-label="Galeri foto perjalanan">
@@ -118,7 +118,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 </div></section>
 
 <section class="section">
-<div class="container"><h2 class="reveal">Video kenangan</h2>
+<div class="container reveal"><h2 class="reveal">Video kenangan</h2>
 <div class="video-grid">
 <?php foreach ($videos as $video): ?><div class="video-card reveal"><iframe src="<?= e($video['embed_url']) ?>" title="<?= e($video['title']) ?>" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><h3><?= e($video['title']) ?></h3><p class="video-fallback">Jika video error, klik link ini: <a href="https://www.youtube.com/watch?v=<?= e(rawurlencode(basename((string)parse_url($video['embed_url'], PHP_URL_PATH)))) ?>" target="_blank" rel="noopener">Tonton di YouTube</a></p></div><?php endforeach; ?>
 <?php if (!$videos): ?><div class="empty"><p>Belum ada video YouTube. Tambahkan melalui admin.</p></div><?php endif; ?>
@@ -126,7 +126,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 </section>
 
 <section id="feedback" class="section section-soft">
-<div class="container feedback-layout"><div><h2 class="reveal">Bagaimana perjalananmu?</h2><p>Tuliskan kesan, pesan, atau momen favoritmu selama KKL.</p></div>
+<div class="container feedback-layout reveal"><div><h2 class="reveal">Bagaimana perjalananmu?</h2><p>Tuliskan kesan, pesan, atau momen favoritmu selama KKL.</p></div>
 <form class="feedback-form" action="<?= url('submit_feedback.php') ?>" method="post">
 <?= csrf_field() ?>
 <?php if (!empty($_GET['feedback_sent'])): ?><div class="alert" style="color:green">Terima kasih, feedback kamu sudah terkirim dan menunggu moderasi.</div><?php endif; ?>

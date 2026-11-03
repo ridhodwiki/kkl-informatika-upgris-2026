@@ -9,8 +9,15 @@ if(reduced||!("IntersectionObserver" in window)||!("customElements" in window)){
   overlay.classList.add("is-hidden");
   return;
 }
-const hideOverlay=()=>{clearTimeout(timeout);overlay.classList.add("is-hidden")};
-const timeout=setTimeout(hideOverlay,3500);
+const hideOverlay=()=>{
+  clearTimeout(timeout);
+  overlay.classList.add("is-hidden");
+  window.removeEventListener("keydown",onKey);
+};
+const onKey=e=>{if(e.key==="Escape")hideOverlay()};
+overlay.addEventListener("click",hideOverlay,{once:true});
+window.addEventListener("keydown",onKey);
+const timeout=setTimeout(hideOverlay,4200);
 if(!customElements.get("dotlottie-player")&&!document.querySelector('script[src*="dotlottie-player"]')){
   const s=document.createElement("script");
   s.src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs";
@@ -28,7 +35,9 @@ if(!container){hideOverlay();return}
 const player=document.createElement("dotlottie-player");
 player.addEventListener("complete",hideOverlay,{once:true});
 player.addEventListener("error",hideOverlay,{once:true});
-player.setAttribute("src","assets/animations/visiting-abroad.json");
+player.setAttribute("speed","1.8");
+player.setAttribute("src","assets/animations/visiting-abroad.lottie");
+player.speed=1.8;
 player.loop=false;
 player.autoplay=true;
 player.style.width="100%";

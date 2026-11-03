@@ -1,0 +1,8 @@
+.gallery-search { display:flex; flex-wrap:wrap; align-items:end; gap:16px; margin:24px 0; }
+.gallery-search label { flex:1 1 260px; font-weight:600; }
+.gallery-search input { display:block; width:100%; margin-top:8px; min-height:44px; padding:10px 14px; border:1px solid #5b6b64; border-radius:12px; font:inherit; color:#18352f; background:#fff; }
+.gallery-search p { flex-basis:100%; margin:0; }
+.gallery-search :focus-visible { outline:3px solid #18352f; outline-offset:3px; }
+.gallery-card[hidden] { display:none !important; }
+.feedback-form .alert-error { background:#fff0ed; color:#8a2015; border:1px solid currentColor; }
+.feedback-form button:disabled { opacity:.6; cursor:not-allowed; }

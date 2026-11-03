@@ -149,7 +149,12 @@ if("IntersectionObserver" in window){
   const sectionObserver=new IntersectionObserver(entries=>{
     entries.forEach(entry=>{
       if(!entry.isIntersecting)return;
-      sectionLinks.forEach(link=>link.classList.toggle("is-active",new URL(link.href).hash===`#${entry.target.id}`));
+      sectionLinks.forEach(link=>{
+        const active=new URL(link.href).hash===`#${entry.target.id}`;
+        link.classList.toggle("is-active",active);
+        if(active)link.setAttribute("aria-current","location");
+        else link.removeAttribute("aria-current");
+      });
       movePill();
     });
   },{rootMargin:"-20% 0px -65%",threshold:0});
@@ -281,9 +286,7 @@ const applyScrollState=()=>{
     day.classList.toggle("is-reached",reduced||day.getBoundingClientRect().top<=line);
   });
 };
-if(reduced){
-  applyScrollState();
-}else{
+{
   let ticking=false;
   const schedule=()=>{
     if(ticking)return;
@@ -325,6 +328,7 @@ tabs.forEach(tab=>{
     const previous=wrap.querySelector('.gallery-rail-prev');
     const next=wrap.querySelector('.gallery-rail-next');
     const originals=[...rail.children];
+    let filtering=false;
     let normalizeTimer;
     if(originals.length>1){
       originals.forEach(card=>{
@@ -365,7 +369,7 @@ tabs.forEach(tab=>{
       requestAnimationFrame(()=>rail.classList.remove('is-repositioning'));
     };
     const normalize=()=>{
-      if(originals.length<2)return;
+      if(filtering||originals.length<2)return;
       const width=loopWidth();
       if(rail.scrollLeft<width)reposition(width);
       else if(rail.scrollLeft>=width*2)reposition(-width);
@@ -375,7 +379,7 @@ tabs.forEach(tab=>{
       normalizeTimer=setTimeout(normalize,120);
     };
     const update=()=>{
-      const overflow=originals.length>1&&loopWidth()>rail.clientWidth;
+      const overflow=filtering?rail.scrollWidth>rail.clientWidth:originals.length>1&&loopWidth()>rail.clientWidth;
       previous.disabled=!overflow;
       next.disabled=!overflow;
     };
@@ -383,8 +387,45 @@ tabs.forEach(tab=>{
     rail.addEventListener('scrollend',normalize);
     previous.addEventListener('click',()=>rail.scrollBy({left:-getStep(),behavior:reduced?'auto':'smooth'}));
     next.addEventListener('click',()=>rail.scrollBy({left:getStep(),behavior:reduced?'auto':'smooth'}));
-    window.addEventListener('resize',()=>{rail.classList.add('is-repositioning');rail.scrollLeft=loopWidth();requestAnimationFrame(()=>rail.classList.remove('is-repositioning'));update();});
+    window.addEventListener('resize',()=>{rail.classList.add('is-repositioning');rail.scrollLeft=filtering?0:loopWidth();requestAnimationFrame(()=>rail.classList.remove('is-repositioning'));update();});
     requestAnimationFrame(()=>{rail.scrollLeft=loopWidth();update();});
+    if(wrap.closest('#galeri')){
+      const controls=document.createElement('div');
+      controls.className='gallery-search';
+      const label=document.createElement('label');
+      label.textContent='Cari foto berdasarkan judul atau lokasi';
+      const input=document.createElement('input');
+      input.type='search';
+      input.placeholder='Contoh: Pandawa, Denpasar';
+      label.append(input);
+      const clear=document.createElement('button');
+      clear.type='button';
+      clear.className='btn btn-ghost';
+      clear.textContent='Hapus pencarian';
+      const status=document.createElement('p');
+      status.setAttribute('role','status');
+      controls.append(label,clear,status);
+      wrap.before(controls);
+      const search=()=>{
+        const query=input.value.trim().toLocaleLowerCase('id');
+        filtering=Boolean(query);
+        clearTimeout(normalizeTimer);
+        let count=0;
+        [...rail.children].forEach(card=>{
+          const original=originals.includes(card);
+          const match=card.textContent.toLocaleLowerCase('id').includes(query);
+          card.hidden=filtering&&(!original||!match);
+          if(original&&!card.hidden)count++;
+        });
+        status.textContent=count?`${count} foto ditemukan.`:'Tidak ada foto yang cocok. Coba kata lain atau hapus pencarian.';
+        rail.classList.add('is-repositioning');
+        rail.scrollLeft=filtering?0:loopWidth();
+        requestAnimationFrame(()=>{rail.classList.remove('is-repositioning');update();});
+      };
+      input.addEventListener('input',search);
+      clear.addEventListener('click',()=>{input.value='';search();input.focus();});
+      search();
+    }
   });
 
   // Live character counter on feedback textarea
@@ -428,6 +469,8 @@ tabs.forEach(tab=>{
   // Static (Vercel) build has no backend: accept the form locally, persist in localStorage, and render immediately.
   const STORAGE_KEY='kkl_upgris_2026_feedbacks';
   document.querySelectorAll('form[data-static-feedback]').forEach(form=>{
+    const save=form.querySelector('[data-local-save]');
+    if(save)save.disabled=false;
     const thanks=form.querySelector('[data-feedback-thanks]');
     const layout=form.closest('.feedback-layout');
     let list=layout?.querySelector('.feedback-list');
@@ -452,19 +495,34 @@ tabs.forEach(tab=>{
       event.preventDefault();
       const fd=new FormData(form);
       const name=String(fd.get('name')||'').trim();
-      const rating=parseInt(String(fd.get('rating')||'5'),10)||5;
+      const rating=Number(fd.get('rating'));
       const message=String(fd.get('message')||'').trim();
-      if(name&&message){
+      const announce=(message,error=false)=>{
+        if(!thanks)return;
+        thanks.textContent=message;
+        thanks.classList.toggle('alert-success',!error);
+        thanks.classList.toggle('alert-error',error);
+        thanks.hidden=false;
+        thanks.focus();
+      };
+      if(!name||name.length>100||!message||message.length>1000||!Number.isInteger(rating)||rating<1||rating>5){
+        announce('Isi nama dan cerita dengan teks, serta pilih rating 1 sampai 5. Isian kamu belum disimpan.',true);
+        return;
+      }
+      {
         const entry={name,rating,message};
         try{
           const prev=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
           const next=Array.isArray(prev)?[...prev,entry].slice(-20):[entry];
           localStorage.setItem(STORAGE_KEY,JSON.stringify(next));
-        }catch{}
+        }catch{
+          announce('Catatan belum dapat disimpan di browser ini. Isian tetap tersedia; salin ceritamu atau coba lagi setelah penyimpanan browser diizinkan.',true);
+          return;
+        }
         ensureList()?.prepend(createFeedbackCard(entry,true));
       }
       form.reset();
-      if(thanks){thanks.hidden=false;thanks.focus?.();}
+      announce('Catatan tersimpan di browser ini saja, tidak dikirim kepada admin atau pengunjung lain.');
     });
   });
 });

@@ -23,7 +23,14 @@ Sync-Dir (Join-Path $src "assets\css") (Join-Path $out "assets\css")
 
 # 2. JS (vanilla main.js + any other files)
 Write-Host "[2] Copying JS..."
-Sync-Dir (Join-Path $src "assets\js") (Join-Path $out "assets\js")
+# main.js owns static-only feedback and gallery behavior. Keep the reviewed
+# static implementation rather than overwriting it with the PHP site's copy.
+$jsSource = Join-Path $src "assets\js"
+$jsOutput = Join-Path $out "assets\js"
+New-Item -ItemType Directory -Path $jsOutput -Force | Out-Null
+Get-ChildItem -LiteralPath $jsSource -File | Where-Object { $_.Name -ne 'main.js' } | ForEach-Object {
+    Copy-Item -LiteralPath $_.FullName -Destination $jsOutput -Force
+}
 
 # 3. Images
 Write-Host "[3] Copying images..."
@@ -47,7 +54,20 @@ Write-Host "[6] Copying Scene 3 illustrations..."
 Sync-Dir (Join-Path $src "scene3") (Join-Path $out "scene3")
 
 # 7. Profile photos + gallery documentation (only files referenced in static/index.html)
-$indexHtml = Get-Content (Join-Path $out "index.html") -Raw
+$indexHtml = Get-Content (Join-Path $out "index.html") -Raw -Encoding UTF8
+# Reconcile exported markup with the freshly copied Vite build.
+$manifestPath = Join-Path $out "dist\.vite\manifest.json"
+if (Test-Path -LiteralPath $manifestPath) {
+    $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+    $entry = $manifest.'src/main.jsx'
+    if (-not $entry.file) { throw "Vite manifest is missing src/main.jsx" }
+    $indexHtml = [regex]::Replace($indexHtml, 'dist/assets/main\.[^"\s]+\.js', ('dist/' + $entry.file))
+    if ($entry.css.Count -gt 0) {
+        $indexHtml = [regex]::Replace($indexHtml, 'dist/assets/main\.[^"\s]+\.css', ('dist/' + $entry.css[0]))
+    }
+}
+$indexHtml = $indexHtml.Replace('<iframe src=', '<iframe loading="lazy" src=')
+[System.IO.File]::WriteAllText((Join-Path $out "index.html"), $indexHtml, [System.Text.UTF8Encoding]::new($false))
 $refMatches = [regex]::Matches($indexHtml, 'uploads/(profiles|gallery)/[A-Za-z0-9._-]+')
 $refSet = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 foreach ($m in $refMatches) { [void]$refSet.Add($m.Value.Replace('/', '\')) }

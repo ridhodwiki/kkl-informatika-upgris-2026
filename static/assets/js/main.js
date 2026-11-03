@@ -35,6 +35,7 @@ if(!container){hideOverlay();return}
 const player=document.createElement("dotlottie-player");
 player.addEventListener("complete",hideOverlay,{once:true});
 player.addEventListener("error",hideOverlay,{once:true});
+player.setAttribute("background","transparent");
 player.setAttribute("speed","1.8");
 player.setAttribute("src","assets/animations/visiting-abroad.lottie");
 player.speed=1.8;

@@ -155,7 +155,7 @@ if(reduced||!("IntersectionObserver" in window)||!("customElements" in window)){
       entry.target.classList.add("visible");
       io.unobserve(entry.target);
     });
-  },{rootMargin:"0px 0px -8% 0px",threshold:.14});
+  },{rootMargin:"0px 0px -6% 0px",threshold:.01});
   const delays=new Map();
   revealEls.forEach(el=>{
     const parent=el.parentElement;
@@ -236,6 +236,7 @@ tabs.forEach(tab=>{
     tabs.forEach(t=>{t.classList.remove("is-active");t.setAttribute("aria-pressed","false");});
     tab.classList.add("is-active");tab.setAttribute("aria-pressed","true");
     days.forEach(d=>{d.classList.toggle("hidden",day!=="all"&&d.getAttribute("data-day")!==day);});
+    requestAnimationFrame(applyScrollState);
   });
  });
   document.querySelectorAll('.gallery-rail-wrap').forEach(wrap=>{

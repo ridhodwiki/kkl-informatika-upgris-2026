@@ -159,7 +159,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 </footer>
 <dialog id="public-lightbox" class="public-lightbox" aria-label="Pratinjau foto"><button type="button" data-lightbox-close aria-label="Tutup">×</button><button type="button" data-lightbox-prev aria-label="Foto sebelumnya">‹</button><img alt=""><button type="button" data-lightbox-next aria-label="Foto berikutnya">›</button></dialog>
 <script type="module" src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"></script>
-<script defer src="<?= url('assets/js/main.js') ?>?v=18"></script>
+<script defer src="<?= url('assets/js/main.js') ?>?v=19"></script>
 <?php $dioramaManifest = __DIR__ . '/../../public/dist/.vite/manifest.json'; if (is_file($dioramaManifest)): $dioramaEntry = json_decode(file_get_contents($dioramaManifest), true)['src/main.jsx'] ?? null; if ($dioramaEntry): ?>
 <link rel="stylesheet" href="<?= url('dist/' . $dioramaEntry['css'][0]) ?>">
 <script type="module" src="<?= url('dist/' . $dioramaEntry['file']) ?>"></script>

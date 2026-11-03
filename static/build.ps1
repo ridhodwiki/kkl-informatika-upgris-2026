@@ -46,23 +46,33 @@ Sync-Dir (Join-Path $src "dist") (Join-Path $out "dist")
 Write-Host "[6] Copying Scene 3 illustrations..."
 Sync-Dir (Join-Path $src "scene3") (Join-Path $out "scene3")
 
-# 7. Profile photos + gallery documentation (committed webp images)
-Write-Host "[7] Copying profile photos..."
-$profileDest = Join-Path $out "uploads\profiles"
-New-Item -ItemType Directory -Path $profileDest -Force | Out-Null
-Get-ChildItem (Join-Path $src "uploads\profiles") -File | Where-Object { $_.Extension -in ".jpg", ".webp" } | ForEach-Object {
-    Copy-Item $_.FullName $profileDest -Force
-}
+# 7. Profile photos + gallery documentation (only files referenced in static/index.html)
+$indexHtml = Get-Content (Join-Path $out "index.html") -Raw
+$refMatches = [regex]::Matches($indexHtml, 'uploads/(profiles|gallery)/[A-Za-z0-9._-]+')
+$refSet = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+foreach ($m in $refMatches) { [void]$refSet.Add($m.Value.Replace('/', '\')) }
 
-Write-Host "[7b] Copying gallery photos..."
-$galleryDest = Join-Path $out "uploads\gallery"
-New-Item -ItemType Directory -Path $galleryDest -Force | Out-Null
-Get-ChildItem (Join-Path $src "uploads\gallery") -File | Where-Object { $_.Extension -in ".webp", ".jpg" } | ForEach-Object {
-    Copy-Item $_.FullName $galleryDest -Force
+Write-Host "[7] Syncing referenced profile & gallery photos..."
+foreach ($sub in @("uploads\profiles", "uploads\gallery")) {
+    $destDir = Join-Path $out $sub
+    New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+    Get-ChildItem $destDir -File -ErrorAction SilentlyContinue | ForEach-Object {
+        $rel = Join-Path $sub $_.Name
+        if (-not $refSet.Contains($rel)) {
+            Remove-Item $_.FullName -Force
+            Write-Host "  PRUNED orphan: $rel"
+        }
+    }
+    $srcDir = Join-Path $src $sub
+    if (Test-Path $srcDir) {
+        Get-ChildItem $srcDir -File | Where-Object { $_.Extension -in ".jpg", ".webp" } | ForEach-Object {
+            $rel = Join-Path $sub $_.Name
+            if ($refSet.Contains($rel)) {
+                Copy-Item $_.FullName (Join-Path $destDir $_.Name) -Force
+            }
+        }
+    }
 }
-# NOTE: files deleted from public/uploads are not removed here. Run
-# tools/export-static.php for the DB-driven gallery/profile markup.
-# TODO: add image compression if build size needs another pass.
 
 # 8. favicon (if present)
 foreach ($icon in @('favicon.svg', 'favicon.ico')) {

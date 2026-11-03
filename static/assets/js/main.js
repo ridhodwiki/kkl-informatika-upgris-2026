@@ -5,26 +5,37 @@ const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 (async()=>{
 const overlay=document.querySelector(".loading-overlay");
 if(!overlay){return}
-if(reduced||!("IntersectionObserver" in window)){
+if(reduced||!("IntersectionObserver" in window)||!("customElements" in window)){
   overlay.classList.add("is-hidden");
   return;
 }
-const script=document.createElement("script");
-script.src="https://unpkg.com/@lottiefiles/dotlottie-web@0.34.3/dist/dotlottie-player.mjs";
-script.type="module";
-document.head.appendChild(script);
-await new Promise(r=>{script.onload=r;script.onerror=r});
+const hideOverlay=()=>{clearTimeout(timeout);overlay.classList.add("is-hidden")};
+const timeout=setTimeout(hideOverlay,3500);
+if(!customElements.get("dotlottie-player")&&!document.querySelector('script[src*="dotlottie-player"]')){
+  const s=document.createElement("script");
+  s.src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs";
+  s.type="module";
+  s.onerror=hideOverlay;
+  document.head.appendChild(s);
+}
+try{await Promise.race([customElements.whenDefined("dotlottie-player"),new Promise((_,j)=>setTimeout(j,2500))])}catch{hideOverlay();return}
+
+
+
+
 const container=overlay.querySelector(".lottie-container");
-if(!container){return}
+if(!container){hideOverlay();return}
 const player=document.createElement("dotlottie-player");
-player.src="assets/animations/visiting-abroad.json";
+player.addEventListener("complete",hideOverlay,{once:true});
+player.addEventListener("error",hideOverlay,{once:true});
+player.setAttribute("src","assets/animations/visiting-abroad.json");
 player.loop=false;
 player.autoplay=true;
 player.style.width="100%";
 player.style.height="100%";
 container.appendChild(player);
-const timeout=setTimeout(()=>overlay.classList.add("is-hidden"),5000);
-player.addEventListener("complete",()=>{clearTimeout(timeout);overlay.classList.add("is-hidden")});
+
+
 })();
 const navToggle=document.querySelector(".nav-toggle"); 
  const nav=document.querySelector("#public-nav");
@@ -125,7 +136,7 @@ if(event.key==="ArrowLeft"){event.preventDefault();showImage(lightboxIndex-1);}
    if(event.key==="ArrowRight"){event.preventDefault();showImage(lightboxIndex+1);}
 });
 const revealEls=document.querySelectorAll(".reveal");
-if(reduced||!("IntersectionObserver" in window)){
+if(reduced||!("IntersectionObserver" in window)||!("customElements" in window)){
   revealEls.forEach(el=>el.classList.add("visible"));
 }else{
   const io=new IntersectionObserver(entries=>{
@@ -175,7 +186,7 @@ const applyScrollState=()=>{
   header?.classList.toggle("is-scrolled",window.scrollY>40);
   if(header){
     const h=Math.round(header.getBoundingClientRect().height)+"px";
-    if(h!==heroSticky){heroSticky=h;document.body.style.setProperty("--hero-sticky-top",h);}
+    if(h!==heroSticky){heroSticky=h;document.documentElement.style.setProperty("--hero-sticky-top",h);}
   }
   if(!journey)return;
   const rect=journey.getBoundingClientRect();

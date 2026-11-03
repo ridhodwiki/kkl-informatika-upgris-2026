@@ -20,8 +20,9 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 <meta name="twitter:image" content="https://kkl-informatika-upgris-2026-static.vercel.app/assets/img/hero-bali.jpg">
 <link rel="icon" href="<?= url('favicon.svg') ?>" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=19">
+<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=20">
 </head>
 <body class="public-page">
 <div class="loading-overlay" aria-hidden="true">
@@ -96,7 +97,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 <div class="profile-grid">
 <?php foreach ($profiles as $profile): ?>
 <article class="profile-card reveal">
-<img src="<?= url($profile['photo']) ?>" alt="<?= e($profile['name']) ?>" loading="lazy" decoding="async">
+<img src="<?= url($profile['photo']) ?>" alt="<?= e($profile['name']) ?>" width="400" height="400" loading="lazy" decoding="async">
 <div class="profile-info">
   <h3><?= e($profile['name']) ?></h3>
   <p><?= e($profile['role']) ?></p>
@@ -115,7 +116,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 <?php $destinationById = []; foreach ($destinations as $destination) { $destinationById[(int)$destination['id']] = $destination; } $galleryItems = []; foreach ($gallery as $item) { $destination = $destinationById[(int)($item['destination_id'] ?? 0)] ?? null; $item['destination_name'] = $destination['name'] ?? 'Dokumentasi lainnya'; $item['place_description'] = $destination['place_description'] ?? ''; $item['address'] = $destination['address'] ?? $item['location']; $item['day_no'] = (int)($destination['day_no'] ?? PHP_INT_MAX); $item['sort_order'] = (int)($destination['sort_order'] ?? PHP_INT_MAX); $galleryItems[] = $item; } usort($galleryItems, fn($a, $b) => [$a['day_no'], $a['sort_order'], $a['created_at'] ?? '', $a['id'] ?? 0] <=> [$b['day_no'], $b['sort_order'], $b['created_at'] ?? '', $b['id'] ?? 0]); ?>
 <?php if ($galleryItems): ?>
 <div class="gallery-rail-wrap gallery-rail-global"><button class="gallery-rail-button gallery-rail-prev" type="button" aria-label="Foto sebelumnya">‹</button><div class="gallery-rail" tabindex="0" aria-label="Galeri foto perjalanan">
-<?php foreach ($galleryItems as $item): ?><figure class="gallery-card"><img src="<?= url($item['photo']) ?>" alt="<?= e($item['title']) ?>" loading="lazy" decoding="async"><figcaption><strong><?= e($item['title']) ?></strong><span><?= e($item['destination_name']) ?></span><?php if ($item['address']): ?><small><?= e($item['address']) ?></small><?php endif; ?><?php if ($item['place_description']): ?><p><?= e($item['place_description']) ?></p><?php endif; ?></figcaption></figure><?php endforeach; ?>
+<?php foreach ($galleryItems as $item): ?><figure class="gallery-card"><img src="<?= url($item['photo']) ?>" alt="<?= e($item['title']) ?>" width="800" height="600" loading="lazy" decoding="async"><figcaption><strong><?= e($item['title']) ?></strong><span><?= e($item['destination_name']) ?></span><?php if ($item['address']): ?><small><?= e($item['address']) ?></small><?php endif; ?><?php if ($item['place_description']): ?><p><?= e($item['place_description']) ?></p><?php endif; ?></figcaption></figure><?php endforeach; ?>
 </div><button class="gallery-rail-button gallery-rail-next" type="button" aria-label="Foto berikutnya">›</button></div>
 <?php else: ?><div class="empty"><p><strong>Dokumentasi foto menyusul.</strong><br>Foto perjalanan akan diunggah setelah KKL selesai.</p></div><?php endif; ?>
 </div></section>
@@ -157,7 +158,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 </footer>
 <dialog id="public-lightbox" class="public-lightbox" aria-label="Pratinjau foto"><button type="button" data-lightbox-close aria-label="Tutup">×</button><button type="button" data-lightbox-prev aria-label="Foto sebelumnya">‹</button><img alt=""><button type="button" data-lightbox-next aria-label="Foto berikutnya">›</button></dialog>
 <script type="module" src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"></script>
-<script defer src="<?= url('assets/js/main.js') ?>?v=14"></script>
+<script defer src="<?= url('assets/js/main.js') ?>?v=16"></script>
 <?php $dioramaManifest = __DIR__ . '/../../public/dist/.vite/manifest.json'; if (is_file($dioramaManifest)): $dioramaEntry = json_decode(file_get_contents($dioramaManifest), true)['src/main.jsx'] ?? null; if ($dioramaEntry): ?>
 <link rel="stylesheet" href="<?= url('dist/' . $dioramaEntry['css'][0]) ?>">
 <script type="module" src="<?= url('dist/' . $dioramaEntry['file']) ?>"></script>

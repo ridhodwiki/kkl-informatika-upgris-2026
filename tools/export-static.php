@@ -60,7 +60,7 @@ if ($gallery) {
     foreach ($gallery as $item) {
         $destinationName = $item['destination_name'] ?: 'Dokumentasi lainnya';
         $address = $item['address'] ?: $item['location'];
-        $cards .= '<figure class="gallery-card"><img src="' . e($item['photo']) . '" alt="' . e($item['title']) . '" loading="lazy" decoding="async"><figcaption><strong>' . e($item['title']) . '</strong><span>' . e($destinationName) . '</span>';
+        $cards .= '<figure class="gallery-card"><img src="' . e($item['photo']) . '" alt="' . e($item['title']) . '" width="800" height="600" loading="lazy" decoding="async"><figcaption><strong>' . e($item['title']) . '</strong><span>' . e($destinationName) . '</span>';
         if ($address) {
             $cards .= '<small>' . e($address) . '</small>';
         }
@@ -82,7 +82,7 @@ $profilesHtml = '';
 foreach ($profiles as $profile) {
     $photo = $profile['photo'] ?: 'assets/img/profile-placeholder.svg';
     $profilesHtml .= '<article class="profile-card reveal">'
-        . '<img src="' . e($photo) . '" alt="' . e($profile['name']) . '" loading="lazy" decoding="async">'
+        . '<img src="' . e($photo) . '" alt="' . e($profile['name']) . '" width="400" height="400" loading="lazy" decoding="async">'
         . '<div class="profile-info"><h3>' . e($profile['name']) . '</h3>'
         . '<p>' . e($profile['role']) . '</p>'
         . ($profile['bio'] ? '<small>' . e($profile['bio']) . '</small>' : '')
@@ -102,6 +102,8 @@ foreach ($videos as $video) {
 }
 if ($videoHtml === '') {
     $videoHtml = '<div class="empty"><p><strong>Video kenangan segera hadir.</strong><br>Rekaman perjalanan KKL akan ditampilkan di sini.</p></div>';
+} else {
+    $videoHtml = '<div class="video-grid">' . $videoHtml . '</div>';
 }
 
 // ─── Write static/index.html ─────────────────────────────────────────────────
@@ -136,18 +138,21 @@ foreach ($blocks as $name => $markup) {
 
 file_put_contents($indexPath, $html);
 
-// ─── Copy referenced uploads ─────────────────────────────────────────────────
+// ─── Copy referenced uploads & prune orphans ─────────────────────────────────
 $copied = 0;
+$pruned = 0;
 $missing = [];
-$sources = array_merge(
+$sources = array_values(array_unique(array_merge(
     array_column($gallery, 'photo'),
     array_filter(array_column($profiles, 'photo'))
-);
-foreach (array_unique($sources) as $relative) {
+)));
+$referencedMap = [];
+foreach ($sources as $relative) {
     // Only plain uploads/<dir>/<file> paths; blocks ../ traversal out of uploads.
     if (!preg_match('#^uploads/(gallery|profiles)/[A-Za-z0-9._-]+$#', $relative) || str_contains($relative, '..')) {
         continue;
     }
+    $referencedMap[$relative] = true;
     $from = $root . '/public/' . $relative;
     $to = $root . '/static/' . $relative;
     if (!is_file($from)) {
@@ -163,12 +168,31 @@ foreach (array_unique($sources) as $relative) {
     }
 }
 
+foreach (['gallery', 'profiles'] as $sub) {
+    $dir = $root . '/static/uploads/' . $sub;
+    if (!is_dir($dir)) {
+        continue;
+    }
+    foreach (scandir($dir) ?: [] as $entry) {
+        if ($entry === '.' || $entry === '..') {
+            continue;
+        }
+        $rel = 'uploads/' . $sub . '/' . $entry;
+        $full = $dir . '/' . $entry;
+        if (is_file($full) && empty($referencedMap[$rel])) {
+            unlink($full);
+            $pruned++;
+        }
+    }
+}
+
 printf(
-    "Exported: %d galeri, %d profil, %d video. Upload disalin: %d.\n",
+    "Exported: %d galeri, %d profil, %d video. Upload disalin: %d, orphan dihapus: %d.\n",
     count($gallery),
     count($profiles),
     count($videos),
-    $copied
+    $copied,
+    $pruned
 );
 if ($missing) {
     fwrite(STDERR, "File tidak ditemukan di public/: " . implode(', ', $missing) . "\n");

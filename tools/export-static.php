@@ -52,6 +52,7 @@ $gallery = $pdo->query(
 
 $profiles = $pdo->query('SELECT name, role, bio, photo FROM profiles ORDER BY sort_order, id')->fetchAll();
 $videos = $pdo->query('SELECT title, embed_url FROM videos ORDER BY id')->fetchAll();
+$feedbacks = $pdo->query('SELECT name, rating, message FROM feedback WHERE approved = 1 ORDER BY id DESC')->fetchAll();
 
 // ─── Blocks ──────────────────────────────────────────────────────────────────
 $galleryHtml = '<div class="empty"><p><strong>Dokumentasi foto akan hadir segera.</strong><br>Foto perjalanan akan diunggah setelah KKL selesai.</p></div>';
@@ -106,6 +107,16 @@ if ($videoHtml === '') {
     $videoHtml = '<div class="video-grid">' . $videoHtml . '</div>';
 }
 
+$feedbackHtml = '';
+if ($feedbacks) {
+    foreach ($feedbacks as $f) {
+        $r = max(1, min(5, (int)($f['rating'] ?? 5)));
+        $stars = str_repeat('★', $r) . str_repeat('☆', 5 - $r);
+        $feedbackHtml .= '<article class="feedback-card"><div class="feedback-card-head"><strong>' . e($f['name']) . '</strong><span class="stars" aria-label="Rating ' . $r . ' dari 5">' . $stars . '</span></div><p>' . e($f['message']) . '</p></article>';
+    }
+    $feedbackHtml = '<div class="feedback-list">' . $feedbackHtml . '</div>';
+}
+
 // ─── Write static/index.html ─────────────────────────────────────────────────
 $indexPath = $root . '/static/index.html';
 $html = file_get_contents($indexPath);
@@ -118,6 +129,7 @@ $blocks = [
     'gallery' => $galleryHtml,
     'profiles' => $profilesHtml,
     'video' => $videoHtml,
+    'feedback' => $feedbackHtml,
 ];
 
 foreach ($blocks as $name => $markup) {

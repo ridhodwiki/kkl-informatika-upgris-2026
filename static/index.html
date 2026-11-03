@@ -20,11 +20,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="assets/animations/visiting-abroad.lottie" as="fetch" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/style.css?v=22">
+<link rel="stylesheet" href="assets/css/style.css?v=23">
 </head>
 <body class="public-page">
 <div class="loading-overlay" aria-hidden="true">
   <div class="lottie-container"></div>
+  <span class="loading-skip-hint">Klik di mana saja untuk melewati</span>
 </div>
 <a class="skip-link" href="#tentang">Lewati ke konten utama</a>
 <header class="site-header">
@@ -335,6 +336,8 @@
     <label>Cerita / feedback<textarea name="message" required maxlength="1000" rows="5" placeholder="Ceritakan pengalamanmu..."></textarea></label>
     <button class="btn btn-primary" type="submit">Kirim Feedback</button>
   </form>
+  <!-- EXPORT:feedback:start -->
+  <!-- EXPORT:feedback:end -->
 </div>
 </section>
 
@@ -359,10 +362,15 @@
   <button type="button" data-lightbox-prev aria-label="Foto sebelumnya">‹</button>
   <img alt="">
   <button type="button" data-lightbox-next aria-label="Foto berikutnya">›</button>
+  <div class="lightbox-meta" data-lightbox-meta>
+    <div class="lightbox-header"><strong data-lightbox-title></strong><span class="lightbox-counter" data-lightbox-counter></span></div>
+    <span class="lightbox-sub" data-lightbox-sub></span>
+    <p class="lightbox-desc" data-lightbox-desc></p>
+  </div>
 </dialog>
 
 <script type="module" src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"></script>
-<script defer src="assets/js/main.js?v=19"></script>
+<script defer src="assets/js/main.js?v=20"></script>
 <link rel="stylesheet" href="dist/assets/main.CW6bnh28.css">
 <script type="module" src="dist/assets/main.UTtnjj3i.js"></script>
 

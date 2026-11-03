@@ -23,11 +23,12 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="<?= url('assets/animations/visiting-abroad.lottie') ?>" as="fetch" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=22">
+<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=23">
 </head>
 <body class="public-page">
 <div class="loading-overlay" aria-hidden="true">
   <div class="lottie-container"></div>
+  <span class="loading-skip-hint">Klik di mana saja untuk melewati</span>
 </div>
 <a class="skip-link" href="#tentang">Lewati ke konten utama</a>
 <header class="site-header">
@@ -84,6 +85,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
     <h4><?= e($destination['name']) ?></h4>
     <?php if ($destination['visit_date']): ?><small><?= e(date('d M Y', strtotime($destination['visit_date']))) ?></small><?php endif; ?>
     <?php if ($destination['description']): ?><p><?= e($destination['description']) ?></p><?php endif; ?>
+    <?php if (!empty($destination['maps_url']) && valid_maps_url($destination['maps_url'])): ?><a class="journey-maps-link" href="<?= e($destination['maps_url']) ?>" target="_blank" rel="noopener">Lihat di Google Maps ↗</a><?php endif; ?>
   </div>
 </article>
 <?php endforeach; ?>
@@ -134,7 +136,8 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 <div class="container feedback-layout reveal"><div><h2 class="reveal">Bagaimana perjalananmu?</h2><p>Tuliskan kesan, pesan, atau momen favoritmu selama KKL.</p></div>
 <form class="feedback-form" action="<?= url('submit_feedback.php') ?>" method="post">
 <?= csrf_field() ?>
-<?php if (!empty($_GET['feedback_sent'])): ?><div class="alert" style="color:green">Terima kasih, feedback kamu sudah terkirim dan menunggu moderasi.</div><?php endif; ?>
+<input type="text" name="website_url" value="" tabindex="-1" autocomplete="off" class="sr-only" aria-hidden="true">
+<?php if (!empty($_GET['feedback_sent'])): ?><div class="alert alert-success">Terima kasih, feedback kamu sudah terkirim dan menunggu moderasi.</div><?php endif; ?>
 <?php if (!empty($_GET['feedback_error'])): ?><div class="alert">Nama (max 100), rating 1-5, dan cerita (max 1000) wajib valid.</div><?php endif; ?>
 <label>Nama<input name="name" required maxlength="100" placeholder="Nama kamu"></label>
 <fieldset class="rating-field"><legend>Rating</legend>
@@ -148,7 +151,15 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 </fieldset>
 <label>Cerita / feedback<textarea name="message" required maxlength="1000" rows="5" placeholder="Ceritakan pengalamanmu..."></textarea></label>
 <button class="btn btn-primary" type="submit">Kirim Feedback</button>
-</form></div>
+</form>
+<?php if (!empty($feedbacks)): ?>
+<div class="feedback-list">
+<?php foreach ($feedbacks as $f): $r = max(1, min(5, (int)($f['rating'] ?? 5))); ?>
+<article class="feedback-card"><div class="feedback-card-head"><strong><?= e($f['name']) ?></strong><span class="stars" aria-label="Rating <?= $r ?> dari 5"><?= str_repeat('★', $r) . str_repeat('☆', 5 - $r) ?></span></div><p><?= e($f['message']) ?></p></article>
+<?php endforeach; ?>
+</div>
+<?php endif; ?>
+</div>
 </section>
 
 <footer class="footer">
@@ -157,9 +168,9 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
     <div class="footer-bottom"><div class="footer-credits"><p class="small">Dibuat oleh Kelompok 11 — Program Studi Informatika, Fakultas Teknik dan Informatika, Universitas PGRI Semarang.</p><p class="small">Model 3D: <a href="https://sketchfab.com/3d-models/candi-bentar-sisi-8fb31ebb25924533826c0f1da1d9cae2" rel="noopener" target="_blank">“Candi Bentar Sisi” by nusaheritage.id</a>, <a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener" target="_blank">CC BY 4.0</a>, dioptimalkan untuk web.</p></div><p class="small footer-copy">© 2026 Universitas PGRI Semarang</p></div>
   </div>
 </footer>
-<dialog id="public-lightbox" class="public-lightbox" aria-label="Pratinjau foto"><button type="button" data-lightbox-close aria-label="Tutup">×</button><button type="button" data-lightbox-prev aria-label="Foto sebelumnya">‹</button><img alt=""><button type="button" data-lightbox-next aria-label="Foto berikutnya">›</button></dialog>
+<dialog id="public-lightbox" class="public-lightbox" aria-label="Pratinjau foto"><button type="button" data-lightbox-close aria-label="Tutup">×</button><button type="button" data-lightbox-prev aria-label="Foto sebelumnya">‹</button><img alt=""><button type="button" data-lightbox-next aria-label="Foto berikutnya">›</button><div class="lightbox-meta" data-lightbox-meta><div class="lightbox-header"><strong data-lightbox-title></strong><span class="lightbox-counter" data-lightbox-counter></span></div><span class="lightbox-sub" data-lightbox-sub></span><p class="lightbox-desc" data-lightbox-desc></p></div></dialog>
 <script type="module" src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"></script>
-<script defer src="<?= url('assets/js/main.js') ?>?v=19"></script>
+<script defer src="<?= url('assets/js/main.js') ?>?v=20"></script>
 <?php $dioramaManifest = __DIR__ . '/../../public/dist/.vite/manifest.json'; if (is_file($dioramaManifest)): $dioramaEntry = json_decode(file_get_contents($dioramaManifest), true)['src/main.jsx'] ?? null; if ($dioramaEntry): ?>
 <link rel="stylesheet" href="<?= url('dist/' . $dioramaEntry['css'][0]) ?>">
 <script type="module" src="<?= url('dist/' . $dioramaEntry['file']) ?>"></script>

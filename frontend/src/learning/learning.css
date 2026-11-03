@@ -27,7 +27,7 @@
 }
 
 .learning-intro .learning-kicker {
-  font: 600 14px / 1.5 Arial, sans-serif;
+  font: 600 14px / 1.5 Inter, sans-serif;
   letter-spacing: 0.16em;
   color: #52675b;
   margin: 0 0 20px;
@@ -43,7 +43,7 @@
 }
 
 .learning-intro-body {
-  font: 400 17px / 1.7 Arial, sans-serif;
+  font: 400 17px / 1.7 Inter, sans-serif;
   color: #52675b;
   max-width: 56ch;
   margin: 0;
@@ -346,14 +346,14 @@
 
 .learning-chapter-number {
   display: block;
-  font: 500 13px / 1 Arial, sans-serif;
+  font: 500 13px / 1 Inter, sans-serif;
   letter-spacing: 0.18em;
   color: #b88a35; /* gold */
   margin-bottom: 14px;
 }
 
 .learning-copy .learning-kicker {
-  font: 600 13px / 1.5 Arial, sans-serif;
+  font: 600 13px / 1.5 Inter, sans-serif;
   letter-spacing: 0.14em;
   color: #52675b;
   margin: 0 0 12px;
@@ -368,7 +368,7 @@
 }
 
 .learning-body {
-  font: 400 17px / 1.7 Arial, sans-serif;
+  font: 400 17px / 1.7 Inter, sans-serif;
   color: #466057;
   max-width: 52ch;
   margin: 0;
@@ -382,7 +382,7 @@
 }
 
 .learning-photo-credit figcaption {
-  font: 400 13px / 1.6 Arial, sans-serif;
+  font: 400 13px / 1.6 Inter, sans-serif;
   color: #52675b;
   margin: 0;
   padding-top: 10px;

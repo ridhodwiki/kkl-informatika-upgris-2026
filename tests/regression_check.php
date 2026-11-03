@@ -125,8 +125,27 @@ check(strpos($unassignedHtml, 'Foto tanpa destinasi') !== false, 'gallery preser
 check(strpos($unassignedHtml, 'Dokumentasi lainnya') !== false, 'unassigned photo uses fallback label');
 
 $gallery = [];
+$feedbacks = [
+    ['id' => 1, 'name' => 'Budi <script>', 'rating' => 5, 'message' => 'Pengalaman luar biasa!', 'approved' => 1],
+];
+$destinations = [
+    ['id' => 1, 'name' => 'Pantai Pandawa', 'day_no' => 3, 'sort_order' => 1, 'visit_date' => '2026-08-20', 'description' => 'Eksplorasi pantai', 'place_description' => '', 'address' => 'Kuta Selatan', 'maps_url' => 'https://www.google.com/maps/place/Pantai+Pandawa', 'route' => 'Denpasar → Pandawa'],
+];
 ob_start(); require __DIR__ . '/../app/views/home.php'; $emptyHtml = ob_get_clean();
 check(strpos($emptyHtml, 'Dokumentasi foto menyusul.') !== false, 'empty gallery state renders when gallery is empty');
+check(strpos($emptyHtml, 'feedback-list') !== false, 'approved feedbacks render in feedback-list');
+check(strpos($emptyHtml, 'Budi &lt;script&gt;') !== false, 'approved feedback name is escaped');
+check(strpos($emptyHtml, 'Pengalaman luar biasa!') !== false, 'approved feedback message renders');
+check(strpos($emptyHtml, '★★★★★') !== false, 'approved feedback 5-star glyph renders');
+check(strpos($emptyHtml, 'Lihat di Google Maps ↗') !== false, 'valid maps_url renders Google Maps link in timeline');
+check(strpos($emptyHtml, 'data-lightbox-meta') !== false, 'enhanced lightbox caption container renders');
+check(strpos($emptyHtml, 'loading-skip-hint') !== false, 'entrance overlay skip hint renders');
 
- echo $fails ? "\nFAILURES:\n- " . implode("\n- ", $fails) . "\n" : "\nALL CHECKS PASSED\n";
+$profiles = $gallery = $destinations = $videos = $feedbacks = [];
+$siteTitle = 'KKL Test';
+ob_start(); require __DIR__ . '/../app/views/admin/dashboard.php'; $adminHtml = ob_get_clean();
+check(strpos($adminHtml, 'action="/kkl-informatika-upgris-2026/public/admin/logout.php"') !== false, 'admin dashboard uses POST form for logout');
+check(strpos($adminHtml, 'onsubmit=') === false, 'admin dashboard has no CSP-blocked inline onsubmit');
+
+echo $fails ? "\nFAILURES:\n- " . implode("\n- ", $fails) . "\n" : "\nALL CHECKS PASSED\n";
 exit($fails ? 1 : 0);

@@ -232,9 +232,20 @@ export function mountScene3() {
       }
     }
 
-    // Map chapter index to first photo frame index for that chapter
+    // Map chapter index to photo frame index for that chapter
+    // If a chapter has multiple photos (e.g. Chapter 03: ulun.svg + devdan.svg),
+    // advance through its photos as the chapter scrolls past the threshold.
     let frameIdx = 0
     for (let ci = 0; ci < bestChapterIdx; ci++) frameIdx += chapters[ci].photos.length
+    const activeChapterEl = chapterEls[bestChapterIdx]
+    const photoCount = chapters[bestChapterIdx]?.photos.length || 1
+    if (photoCount > 1 && activeChapterEl) {
+      const rect = activeChapterEl.getBoundingClientRect()
+      if (rect.height > 0) {
+        const chapterTravel = Math.max(0, Math.min(0.999, (threshold - rect.top) / (rect.height * 0.72)))
+        frameIdx += Math.floor(chapterTravel * photoCount)
+      }
+    }
     return Math.min(totalPhotos - 1, Math.max(0, frameIdx))
   }
 
@@ -284,11 +295,11 @@ export function mountScene3() {
       const isActive = i === activePhotoIndex
       frame.dataset.active = String(isActive)
 
-      // Per-frame reveal progress: each frame has a reveal window
-      // The reveal window for frame i occupies [i/n, (i+0.5)/n] of scene progress
+      // Smoothly reveal active and already-passed frames; keep upcoming frames clipped
       const revealStart = i / totalPhotos
       const revealEnd = revealStart + 0.5 / totalPhotos
-      const reveal = Math.min(1, Math.max(0, (progress - revealStart) / (revealEnd - revealStart)))
+      const scrollReveal = Math.min(1, Math.max(0, (progress - revealStart) / (revealEnd - revealStart)))
+      const reveal = i <= activePhotoIndex ? 1 : scrollReveal
       frame.style.setProperty('--frame-reveal', reveal.toFixed(4))
 
       // Subtle parallax: active frame moves slightly with local scroll

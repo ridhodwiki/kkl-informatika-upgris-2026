@@ -9,6 +9,12 @@ if(reduced||!("IntersectionObserver" in window)||!("customElements" in window)){
   overlay.classList.add("is-hidden");
   return;
 }
+if(!overlay.querySelector(".loading-skip-hint")){
+  const hint=document.createElement("span");
+  hint.className="loading-skip-hint";
+  hint.textContent="Klik di mana saja untuk melewati";
+  overlay.appendChild(hint);
+}
 const hideOverlay=()=>{
   clearTimeout(timeout);
   overlay.classList.add("is-hidden");
@@ -27,9 +33,6 @@ if(!customElements.get("dotlottie-player")&&!document.querySelector('script[src*
 }
 try{await Promise.race([customElements.whenDefined("dotlottie-player"),new Promise((_,j)=>setTimeout(j,2500))])}catch{hideOverlay();return}
 
-
-
-
 const container=overlay.querySelector(".lottie-container");
 if(!container){hideOverlay();return}
 const player=document.createElement("dotlottie-player");
@@ -44,9 +47,8 @@ player.autoplay=true;
 player.style.width="100%";
 player.style.height="100%";
 container.appendChild(player);
-
-
 })();
+
 const navToggle=document.querySelector(".nav-toggle"); 
  const nav=document.querySelector("#public-nav");
  let navPreviousFocus=null;
@@ -69,7 +71,15 @@ navToggle?.addEventListener("click",()=>{
    navToggle.setAttribute("aria-expanded","false");
    navPreviousFocus=null;
  }));
+
 const dialog=document.querySelector("#public-lightbox");
+if(dialog&&!dialog.querySelector("[data-lightbox-meta]")){
+  const meta=document.createElement("div");
+  meta.className="lightbox-meta";
+  meta.setAttribute("data-lightbox-meta","");
+  meta.innerHTML='<div class="lightbox-header"><strong data-lightbox-title></strong><span class="lightbox-counter" data-lightbox-counter></span></div><span class="lightbox-sub" data-lightbox-sub></span><p class="lightbox-desc" data-lightbox-desc></p>';
+  dialog.appendChild(meta);
+}
 const galleryImages=[...document.querySelectorAll(".gallery-card img")].filter(image=>!image.closest("[aria-hidden=\"true\"]"));
 let lightboxIndex=0;
 let restoredFocus=null;
@@ -77,8 +87,30 @@ const showImage=index=>{
   if(!dialog||!galleryImages.length)return;
   lightboxIndex=(index+galleryImages.length)%galleryImages.length;
   const image=galleryImages[lightboxIndex];
-  dialog.querySelector("img").src=image.currentSrc||image.src;
-  dialog.querySelector("img").alt=image.alt;
+  const dialogImg=dialog.querySelector("img");
+  if(!reduced){
+    dialogImg.classList.add("is-switching");
+    setTimeout(()=>dialogImg.classList.remove("is-switching"),140);
+  }
+  dialogImg.src=image.currentSrc||image.src;
+  dialogImg.alt=image.alt;
+  const card=image.closest(".gallery-card");
+  const titleEl=dialog.querySelector("[data-lightbox-title]");
+  const counterEl=dialog.querySelector("[data-lightbox-counter]");
+  const subEl=dialog.querySelector("[data-lightbox-sub]");
+  const descEl=dialog.querySelector("[data-lightbox-desc]");
+  if(titleEl)titleEl.textContent=card?.querySelector("figcaption strong")?.textContent||image.alt||"";
+  if(counterEl)counterEl.textContent=`${lightboxIndex+1} / ${galleryImages.length}`;
+  if(subEl){
+    const dest=card?.querySelector("figcaption span")?.textContent||"";
+    const loc=card?.querySelector("figcaption small")?.textContent||"";
+    subEl.textContent=[dest,loc].filter(Boolean).join(" · ");
+    subEl.hidden=!subEl.textContent;
+  }
+  if(descEl){
+    descEl.textContent=card?.querySelector("figcaption p")?.textContent||"";
+    descEl.hidden=!descEl.textContent;
+  }
 };
 const openLightbox=index=>{
   if(!dialog)return;
@@ -142,9 +174,28 @@ dialog?.addEventListener("click",event=>{
 });
 dialog?.addEventListener("close",()=>restoredFocus?.focus());
 dialog?.addEventListener("keydown",event=>{
-if(event.key==="ArrowLeft"){event.preventDefault();showImage(lightboxIndex-1);}
-   if(event.key==="ArrowRight"){event.preventDefault();showImage(lightboxIndex+1);}
+  if(event.key==="ArrowLeft"){event.preventDefault();showImage(lightboxIndex-1);}
+  if(event.key==="ArrowRight"){event.preventDefault();showImage(lightboxIndex+1);}
 });
+let touchStartX=0;
+let touchStartY=0;
+dialog?.addEventListener("touchstart",event=>{
+  const t=event.changedTouches?.[0];
+  if(!t)return;
+  touchStartX=t.clientX;
+  touchStartY=t.clientY;
+},{passive:true});
+dialog?.addEventListener("touchend",event=>{
+  const t=event.changedTouches?.[0];
+  if(!t)return;
+  const dx=t.clientX-touchStartX;
+  const dy=t.clientY-touchStartY;
+  if(Math.abs(dx)>44&&Math.abs(dx)>Math.abs(dy)*1.3){
+    if(dx<0)showImage(lightboxIndex+1);
+    else showImage(lightboxIndex-1);
+  }
+},{passive:true});
+
 const revealEls=document.querySelectorAll(".reveal");
 if(reduced||!("IntersectionObserver" in window)||!("customElements" in window)){
   revealEls.forEach(el=>el.classList.add("visible"));
@@ -152,8 +203,10 @@ if(reduced||!("IntersectionObserver" in window)||!("customElements" in window)){
   const io=new IntersectionObserver(entries=>{
     entries.forEach(entry=>{
       if(!entry.isIntersecting)return;
-      entry.target.classList.add("visible");
-      io.unobserve(entry.target);
+      const el=entry.target;
+      el.classList.add("visible");
+      el.addEventListener("transitionend",()=>{el.style.transitionDelay="";},{once:true});
+      io.unobserve(el);
     });
   },{rootMargin:"0px 0px -6% 0px",threshold:.01});
   const delays=new Map();
@@ -188,12 +241,32 @@ document.querySelectorAll("[data-count-to]").forEach(el=>{
   io.observe(el);
 });
 
-// Scroll-driven chrome: compact header + timeline progress rail.
+// Scroll-driven chrome: compact header + top progress bar + back-to-top + timeline progress rail.
 const header=document.querySelector(".site-header");
+if(header&&!header.querySelector(".scroll-progress-bar")){
+  const bar=document.createElement("div");
+  bar.className="scroll-progress-bar";
+  bar.setAttribute("aria-hidden","true");
+  header.appendChild(bar);
+}
+let backToTop=document.querySelector(".back-to-top");
+if(!backToTop){
+  backToTop=document.createElement("button");
+  backToTop.type="button";
+  backToTop.className="back-to-top";
+  backToTop.setAttribute("aria-label","Kembali ke atas");
+  backToTop.textContent="↑";
+  backToTop.addEventListener("click",()=>window.scrollTo({top:0,behavior:reduced?"auto":"smooth"}));
+  document.body.appendChild(backToTop);
+}
 const journey=document.querySelector(".journey-days");
 let heroSticky="";
 const applyScrollState=()=>{
   header?.classList.toggle("is-scrolled",window.scrollY>40);
+  const maxScroll=Math.max(1,document.documentElement.scrollHeight-window.innerHeight);
+  const pageProgress=Math.min(1,Math.max(0,window.scrollY/maxScroll));
+  header?.style.setProperty("--page-scroll",pageProgress.toFixed(4));
+  backToTop?.classList.toggle("is-visible",window.scrollY>650);
   if(header){
     const h=Math.round(header.getBoundingClientRect().height)+"px";
     if(h!==heroSticky){heroSticky=h;document.documentElement.style.setProperty("--hero-sticky-top",h);}
@@ -227,7 +300,7 @@ window.addEventListener("load",()=>{applyScrollState();movePill();});
 document.fonts?.ready.then(()=>{applyScrollState();movePill();}).catch(()=>{});
 window.addEventListener("resize",movePill,{passive:true});
 
-// Filter perjalanan per hari
+// Filter perjalanan per hari dengan animasi transisi halus
 const tabs=document.querySelectorAll(".day-tab");
 const days=document.querySelectorAll(".journey-day");
 tabs.forEach(tab=>{
@@ -235,7 +308,15 @@ tabs.forEach(tab=>{
     const day=tab.getAttribute("data-day");
     tabs.forEach(t=>{t.classList.remove("is-active");t.setAttribute("aria-pressed","false");});
     tab.classList.add("is-active");tab.setAttribute("aria-pressed","true");
-    days.forEach(d=>{d.classList.toggle("hidden",day!=="all"&&d.getAttribute("data-day")!==day);});
+    days.forEach(d=>{
+      const shouldHide=day!=="all"&&d.getAttribute("data-day")!==day;
+      d.classList.toggle("hidden",shouldHide);
+      if(!shouldHide&&!reduced){
+        d.classList.remove("is-filtering");
+        void d.offsetWidth;
+        d.classList.add("is-filtering");
+      }
+    });
     requestAnimationFrame(applyScrollState);
   });
  });
@@ -249,7 +330,7 @@ tabs.forEach(tab=>{
       originals.forEach(card=>{
         const clone=card.cloneNode(true);
         clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
-clone.setAttribute('aria-hidden','true');
+        clone.setAttribute('aria-hidden','true');
         const cloneImage=clone.querySelector("img");
         cloneImage?.setAttribute("tabindex","-1");
         cloneImage?.removeAttribute("role");
@@ -305,11 +386,83 @@ clone.setAttribute('aria-hidden','true');
     window.addEventListener('resize',()=>{rail.classList.add('is-repositioning');rail.scrollLeft=loopWidth();requestAnimationFrame(()=>rail.classList.remove('is-repositioning'));update();});
     requestAnimationFrame(()=>{rail.scrollLeft=loopWidth();update();});
   });
-  // Static (Vercel) build has no backend: accept the form locally, send nothing.
+
+  // Live character counter on feedback textarea
+  document.querySelectorAll('.feedback-form textarea[name="message"]').forEach(textarea=>{
+    const max=parseInt(textarea.getAttribute('maxlength')||'1000',10);
+    let counter=textarea.parentElement?.querySelector('.char-counter');
+    if(!counter&&textarea.parentElement){
+      counter=document.createElement('small');
+      counter.className='char-counter';
+      counter.setAttribute('aria-live','polite');
+      textarea.parentElement.appendChild(counter);
+    }
+    const updateCount=()=>{
+      if(counter)counter.textContent=`${textarea.value.length} / ${max}`;
+    };
+    textarea.addEventListener('input',updateCount);
+    textarea.form?.addEventListener('reset',()=>setTimeout(updateCount,0));
+    updateCount();
+  });
+
+  // Helper to build a feedback card DOM element safely
+  const createFeedbackCard=({name,rating,message},isNew=false)=>{
+    const card=document.createElement('article');
+    card.className='feedback-card'+(isNew?' is-new':'');
+    const head=document.createElement('div');
+    head.className='feedback-card-head';
+    const strong=document.createElement('strong');
+    strong.textContent=name;
+    const stars=document.createElement('span');
+    stars.className='stars';
+    const r=Math.min(5,Math.max(1,parseInt(rating,10)||5));
+    stars.setAttribute('aria-label',`Rating ${r} dari 5`);
+    stars.textContent='★'.repeat(r)+'☆'.repeat(5-r);
+    head.append(strong,stars);
+    const body=document.createElement('p');
+    body.textContent=message;
+    card.append(head,body);
+    return card;
+  };
+
+  // Static (Vercel) build has no backend: accept the form locally, persist in localStorage, and render immediately.
+  const STORAGE_KEY='kkl_upgris_2026_feedbacks';
   document.querySelectorAll('form[data-static-feedback]').forEach(form=>{
     const thanks=form.querySelector('[data-feedback-thanks]');
+    const layout=form.closest('.feedback-layout');
+    let list=layout?.querySelector('.feedback-list');
+    const ensureList=()=>{
+      if(!list&&layout){
+        list=document.createElement('div');
+        list.className='feedback-list';
+        layout.appendChild(list);
+      }
+      return list;
+    };
+    try{
+      const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+      if(Array.isArray(saved)&&saved.length){
+        const targetList=ensureList();
+        saved.forEach(item=>{
+          if(item&&item.name&&item.message)targetList?.prepend(createFeedbackCard(item,false));
+        });
+      }
+    }catch{}
     form.addEventListener('submit',event=>{
       event.preventDefault();
+      const fd=new FormData(form);
+      const name=String(fd.get('name')||'').trim();
+      const rating=parseInt(String(fd.get('rating')||'5'),10)||5;
+      const message=String(fd.get('message')||'').trim();
+      if(name&&message){
+        const entry={name,rating,message};
+        try{
+          const prev=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+          const next=Array.isArray(prev)?[...prev,entry].slice(-20):[entry];
+          localStorage.setItem(STORAGE_KEY,JSON.stringify(next));
+        }catch{}
+        ensureList()?.prepend(createFeedbackCard(entry,true));
+      }
       form.reset();
       if(thanks){thanks.hidden=false;thanks.focus?.();}
     });

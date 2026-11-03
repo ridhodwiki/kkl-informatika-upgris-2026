@@ -9,6 +9,18 @@ class AdminController
         $this->pdo = Database::connection();
     }
 
+    private function removeUploadedFile($relativePath)
+    {
+        $relativePath = (string)$relativePath;
+        if (!preg_match('#^uploads/(?:gallery/gallery_|profiles/profile_|branding/logo_)[A-Za-z0-9._-]+$#', $relativePath) || strpos($relativePath, '..') !== false) {
+            return;
+        }
+        $fullPath = __DIR__ . '/../../public/' . $relativePath;
+        if (is_file($fullPath)) {
+            @unlink($fullPath);
+        }
+    }
+
     public function login()
     {
         if (AdminModel::find((int)($_SESSION['admin_id'] ?? 0))) {
@@ -17,14 +29,23 @@ class AdminController
         $error = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             csrf_verify();
-            $stmt = $this->pdo->prepare("SELECT * FROM admins WHERE username=? LIMIT 1");
-            $stmt->execute([trim((string)($_POST['username'] ?? ''))]);
-            $admin = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($admin && password_verify((string)($_POST['password'] ?? ''), $admin['password'])) {
-                Auth::login($admin);
-                redirect('admin/dashboard.php');
+            $now = time();
+            $attempts = $_SESSION['login_attempts'] ?? [];
+            $attempts = array_values(array_filter((array)$attempts, static fn($ts) => is_int($ts) && ($now - $ts) < 300));
+            if (count($attempts) >= 5) {
+                $error = 'Terlalu banyak percobaan gagal. Silakan tunggu 5 menit.';
+            } else {
+                $username = trim((string)($_POST['username'] ?? ''));
+                $admin = AdminModel::findByUsername($username);
+                if ($admin && password_verify((string)($_POST['password'] ?? ''), $admin['password'])) {
+                    unset($_SESSION['login_attempts']);
+                    Auth::login($admin);
+                    redirect('admin/dashboard.php');
+                }
+                $attempts[] = $now;
+                $_SESSION['login_attempts'] = $attempts;
+                $error = 'Username atau password salah.';
             }
-            $error = "Username atau password salah.";
         }
         view('admin/login', compact('error'));
     }
@@ -77,6 +98,9 @@ class AdminController
                 } else {
                     $photo = $profile['photo'];
                     if ($new) {
+                        if ($photo && $photo !== $new) {
+                            $this->removeUploadedFile($photo);
+                        }
                         $photo = $new;
                     }
                     if ($photo === '') {
@@ -152,13 +176,18 @@ class AdminController
             $title = trim((string)($_POST['title'] ?? ''));
             $location = trim((string)($_POST['location'] ?? ''));
             $destination = (int)($_POST['destination_id'] ?? 0) ?: null;
-            if ($title === '') {
-                $error = 'Judul foto wajib diisi.';
+            if (!valid_text($title, 160)) {
+                $error = 'Judul foto wajib diisi (maksimal 160 karakter).';
+            } elseif (mb_strlen($location, 'UTF-8') > 160) {
+                $error = 'Lokasi maksimal 160 karakter.';
             } else {
                 [$photo, $uploadError] = upload_image($_FILES['photo'] ?? null, 'gallery', 'gallery_');
                 if ($uploadError) {
                     $error = $uploadError;
                 } elseif ($id) {
+                    if ($photo && !empty($item['photo']) && $item['photo'] !== $photo) {
+                        $this->removeUploadedFile($item['photo']);
+                    }
                     GalleryModel::save($id, $destination, $title, $location, $photo ?: $item['photo']);
                     redirect('admin/dashboard.php');
                 } elseif ($photo) {
@@ -207,6 +236,10 @@ class AdminController
         }
         csrf_verify();
         $title = trim((string)($_POST['site_title'] ?? ''));
+        if (!valid_text($title, 160)) {
+            $_SESSION['settings_error'] = 'Judul website wajib diisi (maksimal 160 karakter).';
+            redirect('admin/dashboard.php');
+        }
         SettingModel::set('site_title', $title);
         if (!empty($_FILES['logo']['name'])) {
             [$logo, $uploadError] = upload_image($_FILES['logo'], 'branding', 'logo_');
@@ -215,6 +248,10 @@ class AdminController
                 redirect('admin/dashboard.php');
             }
             if ($logo) {
+                $oldLogo = SettingModel::get('logo', '');
+                if ($oldLogo && $oldLogo !== $logo) {
+                    $this->removeUploadedFile($oldLogo);
+                }
                 SettingModel::set('logo', $logo);
             }
         }
@@ -281,9 +318,29 @@ class AdminController
         csrf_verify();
         $type = $_POST['type'] ?? '';
         $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
-        $allowed = ['gallery' => 'gallery', 'videos' => 'videos', 'feedback' => 'feedback', 'profiles' => 'profiles'];
+        $allowed = [
+            'gallery' => 'gallery',
+            'videos' => 'videos',
+            'feedback' => 'feedback',
+            'profiles' => 'profiles',
+            'destinations' => 'destinations',
+        ];
         if (isset($allowed[$type]) && $id !== false && $id > 0) {
             $table = $allowed[$type];
+            if ($table === 'gallery') {
+                $item = GalleryModel::find($id);
+                if (!empty($item['photo'])) {
+                    $this->removeUploadedFile($item['photo']);
+                }
+            } elseif ($table === 'profiles') {
+                $item = ProfileModel::find($id);
+                if (!empty($item['photo'])) {
+                    $this->removeUploadedFile($item['photo']);
+                }
+            } elseif ($table === 'destinations') {
+                $upd = $this->pdo->prepare("UPDATE gallery SET destination_id = NULL WHERE destination_id = ?");
+                $upd->execute([$id]);
+            }
             $stmt = $this->pdo->prepare("DELETE FROM `$table` WHERE id=?");
             $stmt->execute([$id]);
         }
@@ -319,19 +376,6 @@ class AdminController
             exit('<h2>Upgrade berhasil.</h2><p>Struktur destinasi sudah siap, data lama tetap utuh.</p><p><a href="' . e(url('admin/dashboard.php')) . '">Dashboard Admin</a></p>');
         }
         view('admin/upgrade');
-    }
-
-    public function submitFeedback()
-    {
-        csrf_verify();
-        $name = trim((string)($_POST['name'] ?? ''));
-        $rating = filter_var($_POST['rating'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 5]]);
-        $message = trim((string)($_POST['message'] ?? ''));
-        if (!valid_text($name, 100) || $rating === false || !valid_text($message, 1000)) {
-            redirect('/?feedback_error=1#feedback');
-        }
-        FeedbackModel::insert($name, $rating, $message);
-        redirect('/?feedback_sent=1#feedback');
     }
 }
 

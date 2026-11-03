@@ -1,8 +1,32 @@
-document.addEventListener("DOMContentLoaded",()=>{
- if(!document.body.classList.contains("public-page"))return;
- document.body.classList.add("js-ready");
-const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const navToggle=document.querySelector(".nav-toggle");
+document.addEventListener("DOMContentLoaded",()=>{ 
+ if(!document.body.classList.contains("public-page"))return; 
+ document.body.classList.add("js-ready"); 
+const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches; 
+(async()=>{
+const overlay=document.querySelector(".loading-overlay");
+if(!overlay){return}
+if(reduced||!("IntersectionObserver" in window)){
+  overlay.classList.add("is-hidden");
+  return;
+}
+const script=document.createElement("script");
+script.src="https://unpkg.com/@lottiefiles/dotlottie-web@0.34.3/dist/dotlottie-player.mjs";
+script.type="module";
+document.head.appendChild(script);
+await new Promise(r=>{script.onload=r;script.onerror=r});
+const container=overlay.querySelector(".lottie-container");
+if(!container){return}
+const player=document.createElement("dotlottie-player");
+player.src="assets/animations/visiting-abroad.json";
+player.loop=false;
+player.autoplay=true;
+player.style.width="100%";
+player.style.height="100%";
+container.appendChild(player);
+const timeout=setTimeout(()=>overlay.classList.add("is-hidden"),5000);
+player.addEventListener("complete",()=>{clearTimeout(timeout);overlay.classList.add("is-hidden")});
+})();
+const navToggle=document.querySelector(".nav-toggle"); 
  const nav=document.querySelector("#public-nav");
  let navPreviousFocus=null;
 navToggle?.addEventListener("click",()=>{

@@ -21,9 +21,12 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 <link rel="icon" href="<?= url('favicon.svg') ?>" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=17">
+<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=19">
 </head>
 <body class="public-page">
+<div class="loading-overlay" aria-hidden="true">
+  <div class="lottie-container"></div>
+</div>
 <a class="skip-link" href="#tentang">Lewati ke konten utama</a>
 <header class="site-header">
   <div class="container nav-wrap">
@@ -153,7 +156,8 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
   </div>
 </footer>
 <dialog id="public-lightbox" class="public-lightbox" aria-label="Pratinjau foto"><button type="button" data-lightbox-close aria-label="Tutup">×</button><button type="button" data-lightbox-prev aria-label="Foto sebelumnya">‹</button><img alt=""><button type="button" data-lightbox-next aria-label="Foto berikutnya">›</button></dialog>
-<script defer src="<?= url('assets/js/main.js') ?>?v=12"></script>
+<script type="module" src="https://unpkg.com/@lottiefiles/dotlottie-web@0.34.3/dist/dotlottie-player.mjs"></script>
+<script defer src="<?= url('assets/js/main.js') ?>?v=14"></script>
 <?php $dioramaManifest = __DIR__ . '/../../public/dist/.vite/manifest.json'; if (is_file($dioramaManifest)): $dioramaEntry = json_decode(file_get_contents($dioramaManifest), true)['src/main.jsx'] ?? null; if ($dioramaEntry): ?>
 <link rel="stylesheet" href="<?= url('dist/' . $dioramaEntry['css'][0]) ?>">
 <script type="module" src="<?= url('dist/' . $dioramaEntry['file']) ?>"></script>

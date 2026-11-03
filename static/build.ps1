@@ -33,6 +33,10 @@ Sync-Dir (Join-Path $src "assets\img") (Join-Path $out "assets\img")
 Write-Host "[4] Copying 3D model..."
 Sync-Dir (Join-Path $src "assets\models") (Join-Path $out "assets\models")
 
+# 4b. Animations (Lottie JSON)
+Write-Host "[4b] Copying animations..."
+Sync-Dir (Join-Path $src "assets\animations") (Join-Path $out "assets\animations")
+
 # 5. Vite built bundle (dist/)
 Write-Host "[5] Copying Vite bundle..."
 if (Test-Path (Join-Path $out "dist")) { Remove-Item (Join-Path $out "dist") -Recurse -Force }

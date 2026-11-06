@@ -82,11 +82,12 @@ if(dialog&&!dialog.querySelector("[data-lightbox-meta]")){
 }
 const galleryImages=[...document.querySelectorAll(".gallery-card img")].filter(image=>!image.closest("[aria-hidden=\"true\"]"));
 let lightboxIndex=0;
+let lightboxImages=galleryImages;
 let restoredFocus=null;
 const showImage=index=>{
-  if(!dialog||!galleryImages.length)return;
-  lightboxIndex=(index+galleryImages.length)%galleryImages.length;
-  const image=galleryImages[lightboxIndex];
+  if(!dialog||!lightboxImages.length)return;
+  lightboxIndex=(index+lightboxImages.length)%lightboxImages.length;
+  const image=lightboxImages[lightboxIndex];
   const dialogImg=dialog.querySelector("img");
   if(!reduced){
     dialogImg.classList.add("is-switching");
@@ -100,7 +101,8 @@ const showImage=index=>{
   const subEl=dialog.querySelector("[data-lightbox-sub]");
   const descEl=dialog.querySelector("[data-lightbox-desc]");
   if(titleEl)titleEl.textContent=card?.querySelector("figcaption strong")?.textContent||image.alt||"";
-  if(counterEl)counterEl.textContent=`${lightboxIndex+1} / ${galleryImages.length}`;
+  if(counterEl)counterEl.textContent=`${lightboxIndex+1} / ${lightboxImages.length}`;
+  dialog.querySelectorAll('[data-lightbox-prev],[data-lightbox-next]').forEach(button=>{button.disabled=lightboxImages.length<2;});
   if(subEl){
     const dest=card?.querySelector("figcaption span")?.textContent||"";
     const loc=card?.querySelector("figcaption small")?.textContent||"";
@@ -114,8 +116,11 @@ const showImage=index=>{
 };
 const openLightbox=index=>{
   if(!dialog)return;
+  lightboxImages=galleryImages.filter(image=>!image.closest('.gallery-card').hidden);
+  const selected=lightboxImages.indexOf(galleryImages[index]);
+  if(selected<0)return;
   restoredFocus=document.activeElement;
-  showImage(index);
+  showImage(selected);
   dialog.showModal();
   dialog.querySelector("button").focus();
 };
@@ -473,38 +478,73 @@ tabs.forEach(tab=>{
     if(save)save.disabled=false;
     const thanks=form.querySelector('[data-feedback-thanks]');
     const layout=form.closest('.feedback-layout');
-    let list=layout?.querySelector('.feedback-list');
+    let list=layout?.querySelector('[data-local-notes]');
     const ensureList=()=>{
       if(!list&&layout){
         list=document.createElement('div');
         list.className='feedback-list';
+        list.setAttribute('data-local-notes','');
+        list.setAttribute('aria-label','Catatan pribadi di perangkat');
         layout.appendChild(list);
       }
       return list;
     };
-    try{
-      const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
-      if(Array.isArray(saved)&&saved.length){
-        const targetList=ensureList();
-        saved.forEach(item=>{
-          if(item&&item.name&&item.message)targetList?.prepend(createFeedbackCard(item,false));
+    const announce=(message,error=false)=>{
+      if(!thanks)return;
+      thanks.textContent=message;
+      thanks.classList.toggle('alert-success',!error);
+      thanks.classList.toggle('alert-error',error);
+      thanks.hidden=false;
+      thanks.focus();
+    };
+    const readNotes=()=>{
+      const notes=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+      if(!Array.isArray(notes)||notes.some(note=>!note||typeof note.name!=='string'||typeof note.message!=='string'||!Number.isInteger(Number(note.rating))||Number(note.rating)<1||Number(note.rating)>5))throw Error('Invalid notes');
+      return notes;
+    };
+    const download=document.createElement('button');
+    download.type='button';download.className='btn btn-ghost';
+    download.textContent='Unduh catatan pribadi';download.dataset.downloadNotes='';
+    form.append(download);
+    const renderNotes=()=>{
+      const notes=readNotes();
+      const target=ensureList();
+      target.replaceChildren();
+      const heading=document.createElement('h3');heading.textContent='Catatan pribadi';target.append(heading);
+      download.disabled=!notes.length;
+      notes.forEach((note,index)=>{
+        const card=createFeedbackCard(note);
+        const remove=document.createElement('button');
+        remove.type='button';remove.className='btn btn-ghost';remove.textContent='Hapus catatan';
+        remove.addEventListener('click',()=>{
+          try{
+            const current=readNotes();
+            if(JSON.stringify(current)!==JSON.stringify(notes)){renderNotes();announce('Catatan berubah di tab lain. Pilih kembali catatan yang ingin dihapus.');return;}
+            current.splice(index,1);
+            localStorage.setItem(STORAGE_KEY,JSON.stringify(current));
+            renderNotes();announce('Catatan dihapus dari perangkat ini.');
+          }catch{announce('Catatan belum dapat dihapus. Data tetap disimpan.',true);}
         });
-      }
-    }catch{}
+        card.append(remove);target.insertBefore(card,heading.nextSibling);
+      });
+      if(!notes.length){const empty=document.createElement('p');empty.textContent='Belum ada catatan pribadi.';target.append(empty);}
+    };
+    download.addEventListener('click',()=>{
+      try{
+        const blob=new Blob([JSON.stringify(readNotes(),null,2)],{type:'application/json'});
+        const url=URL.createObjectURL(blob);const link=document.createElement('a');
+        link.href=url;link.download='catatan-kkl-bali.json';link.click();
+        setTimeout(()=>URL.revokeObjectURL(url),1000);
+      }catch{announce('Catatan belum dapat diunduh. Data tersimpan tidak diubah.',true);}
+    });
+    try{renderNotes();}catch{download.disabled=true;announce('Catatan tersimpan tidak dapat dibaca. Data lama tidak diubah.',true);}
+    window.addEventListener('storage',event=>{if(event.key===STORAGE_KEY||event.key===null){try{renderNotes();}catch{announce('Catatan tidak dapat dibaca.',true);}}});
     form.addEventListener('submit',event=>{
       event.preventDefault();
       const fd=new FormData(form);
       const name=String(fd.get('name')||'').trim();
       const rating=Number(fd.get('rating'));
       const message=String(fd.get('message')||'').trim();
-      const announce=(message,error=false)=>{
-        if(!thanks)return;
-        thanks.textContent=message;
-        thanks.classList.toggle('alert-success',!error);
-        thanks.classList.toggle('alert-error',error);
-        thanks.hidden=false;
-        thanks.focus();
-      };
       if(!name||name.length>100||!message||message.length>1000||!Number.isInteger(rating)||rating<1||rating>5){
         announce('Isi nama dan cerita dengan teks, serta pilih rating 1 sampai 5. Isian kamu belum disimpan.',true);
         return;
@@ -512,14 +552,14 @@ tabs.forEach(tab=>{
       {
         const entry={name,rating,message};
         try{
-          const prev=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
-          const next=Array.isArray(prev)?[...prev,entry].slice(-20):[entry];
+          const prev=readNotes();
+          const next=[...prev,entry];
           localStorage.setItem(STORAGE_KEY,JSON.stringify(next));
         }catch{
           announce('Catatan belum dapat disimpan di browser ini. Isian tetap tersedia; salin ceritamu atau coba lagi setelah penyimpanan browser diizinkan.',true);
           return;
         }
-        ensureList()?.prepend(createFeedbackCard(entry,true));
+        renderNotes();
       }
       form.reset();
       announce('Catatan tersimpan di browser ini saja, tidak dikirim kepada admin atau pengunjung lain.');

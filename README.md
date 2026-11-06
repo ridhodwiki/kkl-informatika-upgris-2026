@@ -14,15 +14,21 @@ Website dokumentasi perjalanan Kuliah Kerja Lapangan Informatika Universitas PGR
 
 Catatan lokal hanya tersedia pada browser dan origin yang sama. Menghapus data browser menghapus catatan. Feedback yang telah disetujui di PHP dapat ikut diekspor sebagai konten publik; ini berbeda dari catatan lokal pengunjung.
 
+Catatan pribadi dapat dihapus satu per satu dan diunduh sebagai JSON. Tidak ada pemotongan otomatis setelah 20 catatan; jika kapasitas penyimpanan browser habis, penyimpanan baru ditolak dan isian tetap tersedia. Data lama yang tidak dapat dibaca tidak ditimpa. Catatan yang telah terhapus oleh versi sebelumnya tidak dapat dipulihkan otomatis.
+
 ## Fitur
 
 - Hero 3D, animasi perjalanan, dan fallback saat rendering 3D tidak tersedia.
 - Pembuka statis memakai satu dunia 3D dengan tiga bab: gerbang Bali, perjalanan berangkat, dan pembelajaran. Scroll maju/mundur mengendalikan kamera; tautan bab dan “Lewati pembuka” menyediakan akses langsung.
+- Kamera memakai kurva dengan kecepatan tersambung antartitik. Bus dan kapal bergerak mengikuti progres scroll, tanpa animasi terus-menerus saat halaman diam.
+- Tautan `#world-gate`, `#world-travel`, dan `#world-learning` mendukung buka langsung, reload, serta navigasi Back/Forward.
+- Tombol “Tampilan ringan” mematikan canvas 3D; pilihannya disimpan jika penyimpanan browser tersedia. Reduced motion dan fallback perangkat tetap diutamakan.
 - Timeline perjalanan dengan filter hari.
 - Profil pembuat, galeri foto, serta video YouTube.
 - Lightbox dengan navigasi keyboard dan sentuhan.
 - Navigasi responsif, skip link, dan dukungan preferensi reduced motion.
 - Versi statis: pencarian galeri, validasi catatan lokal tanpa menghapus isian ketika penyimpanan gagal, serta lazy loading video.
+- Lightbox versi statis mengikuti hasil pencarian aktif; penghitung dan navigasi foto hanya memakai hasil tersebut.
 - Versi PHP: pengelolaan profil, destinasi, galeri, video, pengaturan situs, dan moderasi feedback.
 
 ## Struktur proyek

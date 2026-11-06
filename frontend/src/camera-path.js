@@ -44,10 +44,10 @@ export function smoothstep(t) {
   return x * x * (3 - 2 * x)
 }
 
-function tangents(values) {
+export function tangents(values, knots = CHECKPOINTS) {
   const n = values.length
   const slopes = []
-  for (let i = 0; i < n - 1; i += 1) slopes.push((values[i + 1] - values[i]) / (CHECKPOINTS[i + 1] - CHECKPOINTS[i]))
+  for (let i = 0; i < n - 1; i += 1) slopes.push((values[i + 1] - values[i]) / (knots[i + 1] - knots[i]))
   const result = [0]
   for (let i = 1; i < n - 1; i += 1) {
     const a = slopes[i - 1]
@@ -56,8 +56,8 @@ function tangents(values) {
       result.push(0)
       continue
     }
-    const w1 = 2 * (CHECKPOINTS[i + 1] - CHECKPOINTS[i]) + (CHECKPOINTS[i] - CHECKPOINTS[i - 1])
-    const w2 = (CHECKPOINTS[i + 1] - CHECKPOINTS[i]) + 2 * (CHECKPOINTS[i] - CHECKPOINTS[i - 1])
+    const w1 = 2 * (knots[i + 1] - knots[i]) + (knots[i] - knots[i - 1])
+    const w2 = (knots[i + 1] - knots[i]) + 2 * (knots[i] - knots[i - 1])
     result.push((w1 + w2) / (w1 / a + w2 / b))
   }
   result.push(0)
@@ -77,7 +77,7 @@ function curves(track) {
   return cache.get(track)
 }
 
-function hermite({ values, slopes }, segment, t, h) {
+export function hermite({ values, slopes }, segment, t, h) {
   const t2 = t * t
   const t3 = t2 * t
   return (2 * t3 - 3 * t2 + 1) * values[segment]

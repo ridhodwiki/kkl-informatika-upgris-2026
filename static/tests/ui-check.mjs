@@ -52,6 +52,8 @@ try{
     assert.equal(await evaluate(`document.documentElement.scrollWidth<=innerWidth+1`),true,`overflow at ${width}`);
   }
   assert.equal(await evaluate(`(()=>{const i=document.querySelector('.gallery-search input');i.value='Pandawa';i.dispatchEvent(new Event('input'));return [...document.querySelectorAll('.gallery-card:not([hidden]):not([aria-hidden])')].length})()`),2);
+  assert.equal(await evaluate(`(()=>{document.querySelector('.gallery-card:not([hidden]):not([aria-hidden]) img').click();document.querySelector('[data-lightbox-next]').click();return document.querySelector('[data-lightbox-counter]').textContent==='2 / 2'&&document.querySelector('#public-lightbox img').alt.includes('Pandawa')})()`),true,'lightbox stays within search results');
+  await evaluate(`document.querySelector('#public-lightbox').close()`);
   assert.equal(await evaluate(`(()=>{const i=document.querySelector('.gallery-search input');i.value='zzzz-no-result';i.dispatchEvent(new Event('input'));return document.querySelector('.gallery-search [role=status]').textContent.includes('Tidak ada')})()`),true);
   assert.equal(await evaluate(`(()=>{document.querySelector('.gallery-search button').click();return [...document.querySelectorAll('.gallery-card:not([aria-hidden])')].every(c=>!c.hidden)})()`),true);
   await evaluate(`window.scrollTo(0,1000);new Promise(r=>setTimeout(r,150))`);
@@ -60,6 +62,14 @@ try{
   assert.equal(await evaluate(`(()=>{${fill}f.elements.name.value='   ';f.requestSubmit();return f.elements.message.value==='Cerita uji'&&document.querySelector('[data-feedback-thanks]').classList.contains('alert-error')})()`),true,'whitespace retains input');
   assert.equal(await evaluate(`(()=>{${fill}const original=Storage.prototype.setItem;Storage.prototype.setItem=()=>{throw Error('quota')};f.requestSubmit();Storage.prototype.setItem=original;return f.elements.message.value==='Cerita uji'&&document.querySelector('[data-feedback-thanks]').textContent.includes('belum dapat')})()`),true,'storage failure retains input');
   assert.equal(await evaluate(`(()=>{${fill}f.requestSubmit();return f.elements.message.value===''&&JSON.parse(localStorage.getItem('kkl_upgris_2026_feedbacks')).length===1&&document.querySelector('[data-feedback-thanks]').textContent.includes('tidak dikirim')})()`),true,'local save');
+  assert.equal(await evaluate(`(()=>{${fill}for(let i=0;i<20;i++){f.elements.name.value='Tester';f.elements.message.value='Catatan '+i;f.elements.rating.value='5';f.requestSubmit()}return JSON.parse(localStorage.getItem('kkl_upgris_2026_feedbacks')).length===21})()`),true,'older notes retained past 20');
+  await send('Browser.setDownloadBehavior',{behavior:'allow',downloadPath:profile});
+  await evaluate(`document.querySelector('[data-download-notes]').click()`);
+  let downloaded;
+  for(let i=0;i<30;i++){try{downloaded=JSON.parse(await readFile(join(profile,'catatan-kkl-bali.json'),'utf8'));break}catch{await new Promise(r=>setTimeout(r,100))}}
+  assert.equal(downloaded?.length,21,'download contains all notes');
+  assert.equal(await evaluate(`(()=>{const original=Storage.prototype.setItem;Storage.prototype.setItem=()=>{throw Error('quota')};document.querySelector('[data-local-notes] button').click();Storage.prototype.setItem=original;return JSON.parse(localStorage.getItem('kkl_upgris_2026_feedbacks')).length===21})()`),true,'failed deletion retains data');
+  assert.equal(await evaluate(`(()=>{document.querySelector('[data-local-notes] button').click();return JSON.parse(localStorage.getItem('kkl_upgris_2026_feedbacks')).length===20&&document.querySelectorAll('[data-local-notes] .feedback-card').length===20})()`),true,'delete persists');
   assert.equal(await evaluate(`[...document.querySelectorAll('iframe')].every(i=>i.loading==='lazy')`),true);
   assert.equal(await evaluate(`document.querySelectorAll('[data-world-panel]:not([aria-hidden])').length`),3,'reduced motion exposes all chapters');
   await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]});
@@ -69,6 +79,22 @@ try{
     await new Promise(r=>setTimeout(r,100));
   }
   assert.equal(await evaluate(`document.querySelector('[data-scroll-world]').dataset.state`),'ready','3D ready');
+  await evaluate(`document.querySelectorAll('[data-world-link]')[1].click();document.querySelectorAll('[data-world-link]')[2].click();history.back();new Promise(r=>setTimeout(r,250))`);
+  assert.equal(await evaluate(`location.hash==='#world-travel'&&document.querySelector('[data-scroll-world]').dataset.chapter==='1'`),true,'Back restores chapter');
+  await evaluate(`history.forward();new Promise(r=>setTimeout(r,250))`);
+  assert.equal(await evaluate(`location.hash==='#world-learning'&&document.querySelector('[data-scroll-world]').dataset.chapter==='2'`),true,'Forward restores chapter');
+  const beforeReload=await evaluate('performance.timeOrigin');
+  await command('Page.reload',{ignoreCache:true});
+  for(let i=0;i<100;i++){if(await evaluate(`performance.timeOrigin!==${beforeReload}&&document.querySelector('[data-scroll-world]')?.dataset.state==='ready'`))break;await new Promise(r=>setTimeout(r,100))}
+  await new Promise(r=>setTimeout(r,150));
+  assert.equal(await evaluate(`document.querySelector('[data-scroll-world]').dataset.chapter`),'2','direct chapter URL after reload');
+  await evaluate(`document.querySelector('[data-world-lite]').click();new Promise(r=>setTimeout(r,150))`);
+  assert.equal(await evaluate(`!document.querySelector('[data-scroll-world] canvas')&&localStorage.getItem('kkl_world_light')==='true'`),true,'light mode releases canvas');
+  await command('Page.reload',{ignoreCache:true});
+  await new Promise(r=>setTimeout(r,600));
+  assert.equal(await evaluate(`document.querySelector('[data-world-lite]').getAttribute('aria-pressed')==='true'&&!document.querySelector('[data-scroll-world] canvas')`),true,'light preference persists');
+  await evaluate(`document.querySelector('[data-world-lite]').click()`);
+  for(let i=0;i<100;i++){if(await evaluate(`document.querySelector('[data-scroll-world]')?.dataset.state==='ready'`))break;await new Promise(r=>setTimeout(r,100))}
   const screenshots=await mkdtemp(join(tmpdir(),'kkl-world-review-'));
   for(const [width,height] of [[1440,900],[768,900],[375,900],[375,667]]){
     await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<768});

@@ -23,7 +23,7 @@ $siteTitle = $settings['site_title'] ?? 'KKL Informatika UPGRIS 2026';
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="<?= url('assets/animations/visiting-abroad.lottie') ?>" as="fetch" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=23">
+<link rel="stylesheet" href="<?= url('assets/css/style.css') ?>?v=24">
 </head>
 <body class="public-page">
 <div class="loading-overlay" aria-hidden="true">

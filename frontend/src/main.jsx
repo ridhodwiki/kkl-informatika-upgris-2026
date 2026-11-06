@@ -11,6 +11,7 @@ import './style.css'
 import { initJourney } from './journey/bootstrap.js'
 import { mountScene3 } from './learning/index.js'
 import './navbar.css'
+import { World } from './world.jsx'
 
 const container = document.getElementById('hero-3d-root')
 const MODEL_URL = container?.dataset.modelUrl || '/assets/models/candi-bentar.glb'
@@ -308,14 +309,17 @@ function Diorama() {
 // Both functions guard against duplicate insertion and require #timeline to be
 // present. They run synchronously at module evaluation time — the DOM is fully
 // parsed before this deferred script executes, so there is no insertion race.
-initJourney()
-mountScene3()
+const scrollWorld = document.querySelector('[data-scroll-world]')
+if (!scrollWorld) {
+  initJourney()
+  mountScene3()
+}
 
 if (container) {
   createRoot(container).render(
     <StrictMode>
       <RenderBoundary onFail={() => setHeroState('fallback')}>
-        <Diorama />
+        {scrollWorld ? <World Gateway={Gateway} /> : <Diorama />}
       </RenderBoundary>
     </StrictMode>
   )

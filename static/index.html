@@ -18,15 +18,12 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="assets/animations/visiting-abroad.lottie" as="fetch" crossorigin>
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css?v=23">
 </head>
 <body class="public-page">
-<div class="loading-overlay" aria-hidden="true">
-  <div class="lottie-container"></div>
-  <span class="loading-skip-hint">Klik di mana saja untuk melewati</span>
-</div>
+
 <a class="skip-link" href="#tentang">Lewati ke konten utama</a>
 <header class="site-header">
   <div class="container nav-wrap">
@@ -46,20 +43,41 @@
   </div>
 </header>
 
-<div class="hero-stage">
-  <section class="hero reveal" id="beranda" data-diorama="active">
-    <div class="hero-content">
-      <h1>KKL Bali 2026</h1>
-      <p>Satu Perjalanan. Seribu Kenangan.</p>
-      <p>Dokumentasi perjalanan Kuliah Kerja Lapangan Program Studi Informatika UPGRIS 2026 — 18–22 Agustus 2026, Bali.</p>
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="#timeline">Lihat Perjalanan</a>
-        <a class="btn btn-ghost" href="#galeri">Jelajahi Galeri</a>
-      </div>
-    </div>
+<section id="beranda" class="scroll-world" data-scroll-world data-chapter="0">
+  <div class="world-stage">
+    <p class="world-brand">Informatika UPGRIS / Bali / 18–22 Agustus 2026</p>
     <div id="hero-3d-root" aria-hidden="true" data-model-url="assets/models/candi-bentar.glb"></div>
-  </section>
-</div>
+    <div class="world-panels">
+      <article id="world-gate" class="world-panel" data-world-panel="0">
+        <p class="world-kicker">01 / Sebuah awal</p>
+        <h1 tabindex="-1">Melangkah ke<br><em>cerita baru.</em></h1>
+        <p>Dari ruang kelas menuju Bali. Satu perjalanan untuk melihat, belajar, dan tumbuh bersama.</p>
+        <p class="world-detail">KKL Informatika UPGRIS 2026 · Gulir untuk menjelajah</p>
+        <img class="world-poster" src="assets/img/hero-bali.jpg" width="2000" height="1333" alt="Pemandangan Bali sebagai pembuka perjalanan">
+      </article>
+      <article id="world-travel" class="world-panel" data-world-panel="1">
+        <p class="world-kicker">02 / Perjalanan berangkat</p>
+        <h2 tabindex="-1">Jauh berjalan.<br><em>Dekat bersama.</em></h2>
+        <p>Dari Semarang, melintasi Jawa, lalu menyeberang dari Ketapang menuju Gilimanuk. Setiap persinggahan menjadi bagian cerita.</p>
+        <p class="world-detail">Diorama skematis · bukan peta geografis</p>
+      </article>
+      <article id="world-learning" class="world-panel" data-world-panel="2">
+        <p class="world-kicker">03 / Belajar di luar kelas</p>
+        <h2 tabindex="-1">Bawa pulang<br><em>cara pandang.</em></h2>
+        <p>Dari Balai Diklat Industri Denpasar hingga kriya dan budaya Bali: melihat hubungan antara keterampilan, kreativitas, dan kehidupan.</p>
+        <img src="scene3/bdi.svg" width="1000" height="700" alt="Ilustrasi Balai Diklat Industri Denpasar" loading="lazy">
+      </article>
+    </div>
+    <div class="world-controls">
+      <nav aria-label="Bab pembuka">
+        <a href="#world-gate" data-world-link><span>01</span> Gerbang</a>
+        <a href="#world-travel" data-world-link><span>02</span> Perjalanan</a>
+        <a href="#world-learning" data-world-link><span>03</span> Pembelajaran</a>
+      </nav>
+      <a href="#timeline">Lewati pembuka ↗</a>
+    </div>
+  </div>
+</section>
 
 <section id="tentang" class="section">
   <div class="container two-col reveal">
@@ -370,10 +388,10 @@
   </div>
 </dialog>
 
-<script type="module" src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"></script>
+
 <script defer src="assets/js/main.js?v=21"></script>
-<link rel="stylesheet" href="dist/assets/main.CW6bnh28.css">
-<script type="module" src="dist/assets/main.UTtnjj3i.js"></script>
+<link rel="stylesheet" href="dist/assets/main.D96sbDma.css">
+<script type="module" src="dist/assets/main.DRNxDDg9.js"></script>
 
 <script type="application/ld+json">
 {

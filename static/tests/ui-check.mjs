@@ -1,6 +1,6 @@
 import {spawn} from 'node:child_process';
 import {createServer} from 'node:http';
-import {readFile,mkdtemp,rm} from 'node:fs/promises';
+import {readFile,mkdtemp,rm,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join,resolve,extname} from 'node:path';
 import assert from 'node:assert/strict';
@@ -61,7 +61,46 @@ try{
   assert.equal(await evaluate(`(()=>{${fill}const original=Storage.prototype.setItem;Storage.prototype.setItem=()=>{throw Error('quota')};f.requestSubmit();Storage.prototype.setItem=original;return f.elements.message.value==='Cerita uji'&&document.querySelector('[data-feedback-thanks]').textContent.includes('belum dapat')})()`),true,'storage failure retains input');
   assert.equal(await evaluate(`(()=>{${fill}f.requestSubmit();return f.elements.message.value===''&&JSON.parse(localStorage.getItem('kkl_upgris_2026_feedbacks')).length===1&&document.querySelector('[data-feedback-thanks]').textContent.includes('tidak dikirim')})()`),true,'local save');
   assert.equal(await evaluate(`[...document.querySelectorAll('iframe')].every(i=>i.loading==='lazy')`),true);
-  console.log('PASS: responsive widths, gallery search/reset/empty, reduced-motion scroll, feedback validation/storage failure/success, lazy iframe');
+  assert.equal(await evaluate(`document.querySelectorAll('[data-world-panel]:not([aria-hidden])').length`),3,'reduced motion exposes all chapters');
+  await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]});
+  await evaluate(`window.scrollTo({top:0,behavior:'instant'})`);
+  for(let i=0;i<150;i++){
+    if(await evaluate(`document.querySelector('[data-scroll-world]').dataset.state==='ready'`))break;
+    await new Promise(r=>setTimeout(r,100));
+  }
+  assert.equal(await evaluate(`document.querySelector('[data-scroll-world]').dataset.state`),'ready','3D ready');
+  const screenshots=await mkdtemp(join(tmpdir(),'kkl-world-review-'));
+  for(const [width,height] of [[1440,900],[768,900],[375,900],[375,667]]){
+    await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<768});
+    for(const chapter of [0,1,2,1,0]){
+      await evaluate(`document.querySelectorAll('[data-world-link]')[${chapter}].click();new Promise(r=>setTimeout(r,450))`);
+      assert.equal(await evaluate(`Number(document.querySelector('[data-scroll-world]').dataset.chapter)`),chapter,'jump and reverse');
+      assert.equal(await evaluate(`document.documentElement.scrollWidth<=innerWidth+1`),true,'world overflow');
+      assert.equal(await evaluate(`(()=>{const panel=document.querySelector('[data-world-panel="${chapter}"]');const box=panel.getBoundingClientRect();return !panel.inert&&box.top>=0&&box.bottom<=innerHeight})()`),true,'chapter readable');
+      assert.equal(await evaluate(`document.querySelector('[data-world-panel="${chapter}"]').getBoundingClientRect().bottom<document.querySelector('.world-controls').getBoundingClientRect().top`),true,`controls clear of chapter at ${width}x${height}`);
+      const {data}=await command('Page.captureScreenshot',{format:'png'});
+      await writeFile(join(screenshots,`${width}-${height}-${chapter}.png`),Buffer.from(data,'base64'));
+    }
+  }
+  for(const [progress,chapter] of [[.2,0],[.5,1],[.9,2],[.5,1],[0,0]]){
+    await evaluate(`(()=>{const root=document.querySelector('[data-scroll-world]');scrollTo({top:scrollY+root.getBoundingClientRect().top+${progress}*(root.offsetHeight-innerHeight),behavior:'instant'})})();new Promise(r=>setTimeout(r,100))`);
+    assert.equal(await evaluate(`Number(document.querySelector('[data-scroll-world]').dataset.chapter)`),chapter,'native scroll drives chapters');
+  }
+  await evaluate(`document.querySelector('.world-controls>a').click();new Promise(r=>setTimeout(r,1200))`);
+  assert.equal(await evaluate(`Math.abs(document.querySelector('#timeline').getBoundingClientRect().top)<200`),true,'skip reaches timeline');
+  await evaluate(`document.querySelector('[data-scroll-world] canvas').getContext('webgl2').getExtension('WEBGL_lose_context').loseContext();new Promise(r=>setTimeout(r,200))`);
+  assert.equal(await evaluate(`!document.querySelector('[data-scroll-world]').classList.contains('world-enabled')&&[...document.querySelectorAll('[data-world-panel]')].every(p=>!p.inert)`),true,'context loss fallback');
+  await command('Network.enable');
+  await command('Network.setBlockedURLs',{urls:['*candi-bentar.glb*']});
+  await command('Page.reload',{ignoreCache:true});
+  await new Promise(r=>setTimeout(r,1500));
+  assert.equal(await evaluate(`!document.querySelector('[data-scroll-world]').classList.contains('world-enabled')&&[...document.querySelectorAll('[data-world-panel]')].every(p=>!p.inert)`),true,'missing model fallback');
+  await command('Emulation.setScriptExecutionDisabled',{value:true});
+  await command('Page.reload',{ignoreCache:true});
+  await new Promise(r=>setTimeout(r,700));
+  assert.equal(await evaluate(`document.querySelectorAll('[data-world-panel]').length===3&&!document.querySelector('[data-scroll-world]').classList.contains('world-enabled')`),true,'no-JS content');
+  console.log(`World screenshots: ${screenshots}`);
+  console.log('PASS: responsive UI, gallery, feedback, lazy iframe, world chapters/scroll/skip, reduced motion, WebGL/model failure and no-JS fallback');
   await send('Browser.close');
 }finally{
   ws?.close();chrome.kill();server.close();

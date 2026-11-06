@@ -17,6 +17,7 @@ Catatan lokal hanya tersedia pada browser dan origin yang sama. Menghapus data b
 ## Fitur
 
 - Hero 3D, animasi perjalanan, dan fallback saat rendering 3D tidak tersedia.
+- Pembuka statis memakai satu dunia 3D dengan tiga bab: gerbang Bali, perjalanan berangkat, dan pembelajaran. Scroll maju/mundur mengendalikan kamera; tautan bab dan “Lewati pembuka” menyediakan akses langsung.
 - Timeline perjalanan dengan filter hari.
 - Profil pembuat, galeri foto, serta video YouTube.
 - Lightbox dengan navigasi keyboard dan sentuhan.
@@ -55,6 +56,10 @@ Admin tersedia di `http://localhost/kkl-informatika-upgris-2026/public/admin/log
 Data seed dan foto bawaan merupakan titik awal; sesuaikan identitas dan foto melalui admin sebelum dipakai sebagai dokumentasi final. Backup database lokal tidak disertakan sebagai prasyarat clone repositori.
 
 ## Pengembangan frontend
+
+Pembuka baru diaktifkan oleh `data-scroll-world` pada HTML statis. Implementasinya berada di `frontend/src/world.jsx`, dengan jalur kamera di `world-path.js` dan tata letak di `world.css`. Halaman PHP tanpa penanda tersebut tetap menggunakan hero dan scene lama. Scene perjalanan/ruang belajar berupa miniatur ilustratif, bukan rekonstruksi lokasi nyata.
+
+Reduced motion, tinggi viewport 600 piksel atau kurang, serta kegagalan model/WebGL menampilkan narasi tiga bab sebagai konten biasa. Tanpa JavaScript, narasi dan tautan tetap tersedia. Tidak ada layanan generasi video atau dependensi baru untuk pembuka ini.
 
 Gunakan Node.js 22.12+ atau Node.js 24 beserta npm. Tes browser terbaru telah dijalankan menggunakan Node.js 24 dan Chrome di Windows.
 
@@ -111,7 +116,7 @@ Tes browser statis:
 node static/tests/ui-check.mjs
 ```
 
-Tes browser menjalankan server lokal dan Chrome headless sendiri. Cakupannya: lebar 375/768/1440 piksel, pencarian/reset/hasil kosong galeri, scroll dengan reduced motion, validasi catatan, kegagalan penyimpanan, penyimpanan berhasil, dan lazy iframe. Ini bukan audit Lighthouse atau pengujian seluruh backend.
+Tes browser menjalankan server lokal dan Chrome headless sendiri. Cakupannya: lebar 375/768/1440 piksel, pencarian/reset/hasil kosong galeri, scroll dengan reduced motion, validasi catatan, kegagalan penyimpanan, penyimpanan berhasil, dan lazy iframe. Pembuka diuji untuk perpindahan bab bolak-balik, fallback WebGL/model, serta konten tanpa JavaScript. Screenshot desktop/ponsel disimpan ke direktori sementara yang dicetak runner. Ini bukan audit Lighthouse atau pengujian seluruh backend.
 
 Lokasi Chrome default adalah `C:\Program Files\Google\Chrome\Application\chrome.exe`. Jika berbeda:
 

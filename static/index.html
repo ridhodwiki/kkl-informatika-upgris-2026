@@ -18,12 +18,15 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
+<link rel="preload" href="assets/animations/visiting-abroad.lottie" as="fetch" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css?v=23">
 </head>
 <body class="public-page">
-
+<div class="loading-overlay" aria-hidden="true">
+  <div class="lottie-container"></div>
+  <span class="loading-skip-hint">Klik di mana saja untuk melewati</span>
+</div>
 <a class="skip-link" href="#tentang">Lewati ke konten utama</a>
 <header class="site-header">
   <div class="container nav-wrap">

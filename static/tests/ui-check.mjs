@@ -47,6 +47,7 @@ try{
     await new Promise(r=>setTimeout(r,100));
   }
   assert.equal(await evaluate(`Boolean(document.querySelector('.gallery-search'))`),true);
+  assert.equal(await evaluate(`Boolean(document.querySelector('.loading-overlay .lottie-container'))`),true,'entrance overlay markup present');
   for(const width of [375,768,1440]){
     await command('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:width<768});
     assert.equal(await evaluate(`document.documentElement.scrollWidth<=innerWidth+1`),true,`overflow at ${width}`);

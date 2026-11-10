@@ -2,6 +2,7 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { sampleWorld, worldProgress, vehiclePositions } from './world-path.js'
 import './world.css'
+import { Vehicle } from './vehicle.jsx'
 
 const green = '#245e50', sand = '#d9b66f', paper = '#f4f1e9'
 
@@ -23,20 +24,24 @@ function Miniatures({bus,boat}) {
     {Array.from({length:14},(_,i)=><Block key={i} position={[0,-2.35,-i*2]} size={[.07,.02,.65]} color={paper}/>)}
     {[-2, -8, -13, -29, -34, -40, -49].flatMap((z,i)=>[-1,1].map(side=><Tree key={`${z}-${side}`} x={side*(4+i%2)} z={z} scale={.85+(i%3)*.15}/>))}
     <group ref={bus} position={[-.65,-1.65,-15]} rotation={[0,Math.PI,0]}>
+      <Vehicle name="bus">
       <Block position={[0,0,0]} size={[1.1,1.15,2.7]} color={sand}/>
       <Block position={[0,.27,1.36]} size={[.85,.46,.03]} color={green}/>
       {[-1,1].map(side=><group key={side}>
         <Block position={[side*.56,.25,0]} size={[.02,.43,1.9]} color={green}/>
         {[-.85,.85].map(z=><mesh key={z} position={[side*.52,-.48,z]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[.24,.24,.16,12]}/><meshStandardMaterial color="#253b34"/></mesh>)}
       </group>)}
+      </Vehicle>
     </group>
     <Block position={[0,-2.28,-25]} size={[13,.12,7]} color="#8dbbb4"/>
     {[-4,-2,0,2,4].map(x=><Block key={x} position={[x,-2.2,-25.8]} size={[1,.025,.06]} color="#d8e9df"/>)}
-    <group ref={boat} position={[-2,-1.95,-25]} rotation={[0,Math.PI/2,0]}>
+    <group ref={boat} position={[-2,-2.05,-25]} rotation={[0,Math.PI/2,0]}>
+      <Vehicle name="ferry">
       <mesh scale={[1, .35, 2.1]}><cylinderGeometry args={[1,.65,1,6]}/><meshStandardMaterial color={green}/></mesh>
       <Block position={[0,.4,0]} size={[1.2,.65,1.9]} color={paper}/>
       <Block position={[0,.82,-.25]} size={[.9,.25,.85]} color={sand}/>
       <Block position={[0,.5,1]} size={[.8,.25,.03]} color={green}/>
+      </Vehicle>
     </group>
     <group position={[0,-2.3,-47]}>
       <Block position={[0,0,0]} size={[9,.25,7]} color="#d2c3a5"/>

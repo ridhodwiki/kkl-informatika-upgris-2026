@@ -73,6 +73,7 @@ try{
   assert.equal(await evaluate(`(()=>{document.querySelector('[data-local-notes] button').click();return JSON.parse(localStorage.getItem('kkl_upgris_2026_feedbacks')).length===20&&document.querySelectorAll('[data-local-notes] .feedback-card').length===20})()`),true,'delete persists');
   assert.equal(await evaluate(`[...document.querySelectorAll('iframe')].every(i=>i.loading==='lazy')`),true);
   assert.equal(await evaluate(`document.querySelectorAll('[data-world-panel]:not([aria-hidden])').length`),3,'reduced motion exposes all chapters');
+  assert.equal(await evaluate(`performance.getEntriesByType('resource').some(r=>/kkl-(bus|ferry)\\.glb/.test(r.name))`),false,'reduced motion avoids vehicle downloads');
   await command('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]});
   await evaluate(`window.scrollTo({top:0,behavior:'instant'})`);
   for(let i=0;i<150;i++){
@@ -97,6 +98,8 @@ try{
   await evaluate(`document.querySelector('[data-world-lite]').click()`);
   for(let i=0;i<100;i++){if(await evaluate(`document.querySelector('[data-scroll-world]')?.dataset.state==='ready'`))break;await new Promise(r=>setTimeout(r,100))}
   const screenshots=await mkdtemp(join(tmpdir(),'kkl-world-review-'));
+  await evaluate(`document.querySelector('.loading-overlay')?.click();new Promise(r=>setTimeout(r,500))`);
+  assert.equal(await evaluate(`['bus','ferry'].every(name=>performance.getEntriesByType('resource').some(r=>r.name.endsWith('kkl-'+name+'.glb')&&r.decodedBodySize>0))`),true,'both CAD models downloaded');
   for(const [width,height] of [[1440,900],[768,900],[375,900],[375,667]]){
     await command('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<768});
     for(const chapter of [0,1,2,1,0]){
@@ -118,6 +121,12 @@ try{
   await evaluate(`document.querySelector('[data-scroll-world] canvas').getContext('webgl2').getExtension('WEBGL_lose_context').loseContext();new Promise(r=>setTimeout(r,200))`);
   assert.equal(await evaluate(`!document.querySelector('[data-scroll-world]').classList.contains('world-enabled')&&[...document.querySelectorAll('[data-world-panel]')].every(p=>!p.inert)`),true,'context loss fallback');
   await command('Network.enable');
+  await command('Network.setBlockedURLs',{urls:['*kkl-bus.glb*','*kkl-ferry.glb*']});
+  const beforeVehicleFailure=await evaluate('performance.timeOrigin');
+  await command('Page.reload',{ignoreCache:true});
+  for(let i=0;i<100;i++){if(await evaluate(`performance.timeOrigin!==${beforeVehicleFailure}&&document.querySelector('[data-scroll-world]')?.dataset.state==='ready'`))break;await new Promise(r=>setTimeout(r,100))}
+  await evaluate(`document.querySelectorAll('[data-world-link]')[1].click();new Promise(r=>setTimeout(r,300))`);
+  assert.equal(await evaluate(`document.querySelector('[data-scroll-world]').dataset.state==='ready'&&document.querySelector('[data-scroll-world]').dataset.chapter==='1'`),true,'missing vehicles preserve interactive world');
   await command('Network.setBlockedURLs',{urls:['*candi-bentar.glb*']});
   await command('Page.reload',{ignoreCache:true});
   await new Promise(r=>setTimeout(r,1500));

@@ -11,7 +11,7 @@
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
         { "key": "Referrer-Policy", "value": "no-referrer" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' https://unpkg.com; frame-src https://www.youtube.com; connect-src 'self' blob: https://unpkg.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self';" }
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' https://unpkg.com; frame-src https://www.youtube.com; connect-src 'self' blob: https://unpkg.com https://inzefzfeaececgnfcrfh.supabase.co; frame-ancestors 'self'; base-uri 'self'; form-action 'self';" }
       ]
     },
     {

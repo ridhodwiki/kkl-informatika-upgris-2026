@@ -11,6 +11,10 @@ const fixtureRows=Array.from({length:23},(_,i)=>({id:`00000000-0000-0000-0000-${
 const server=createServer(async(req,res)=>{
   try {
     const requestUrl=new URL(req.url,'http://localhost');
+    if(requestUrl.pathname==='/assets/js/feedback-config.js'&&!feedbackFixture){
+      res.setHeader('Content-Type','text/javascript');
+      res.end("export const feedbackConfig={url:'',publishableKey:''};");return;
+    }
     if(feedbackFixture&&requestUrl.pathname==='/assets/js/feedback-config.js'){
       res.setHeader('Content-Type','text/javascript');
       res.end(`export const feedbackConfig={url:'http://127.0.0.1:${server.address().port}',publishableKey:'sb_publishable_test'};`);return;

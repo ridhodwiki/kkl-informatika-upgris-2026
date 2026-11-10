@@ -14,14 +14,28 @@ if ($feedbackUrl) {
     $feedbackUri = [uri]$feedbackUrl
     if ($feedbackUri.Scheme -ne 'https' -or $feedbackUri.Host -notmatch '^[a-z0-9-]+\.supabase\.co$' -or $feedbackUri.UserInfo) { throw 'Invalid Supabase project URL' }
     $vercelPath = Join-Path $out 'vercel.json'
-    $vercel = Get-Content $vercelPath -Raw | ConvertFrom-Json
-    $csp = $vercel.headers[0].headers | Where-Object { $_.key -eq 'Content-Security-Policy' }
-    $csp.value = [regex]::Replace($csp.value, 'connect-src ([^;]*);', {
+    $vercel = Get-Content $vercelPath -Raw
+    $vercel = [regex]::Replace($vercel, '("key": "Content-Security-Policy", "value": ")([^"]*)(")', {
         param($match)
-        $sources = [regex]::Replace($match.Groups[1].Value, ' https://[a-z0-9-]+\.supabase\.co', '')
-        return 'connect-src ' + $sources + ' ' + $feedbackUri.GetLeftPart([System.UriPartial]::Authority) + ';'
+        $policy = [regex]::Replace($match.Groups[2].Value, 'connect-src ([^;]*);', {
+            param($directive)
+            $sources = [regex]::Replace($directive.Groups[1].Value, ' https://[a-z0-9-]+\.supabase\.co', '')
+            return 'connect-src ' + $sources + ' ' + $feedbackUri.GetLeftPart([System.UriPartial]::Authority) + ';'
+        })
+        return $match.Groups[1].Value + $policy + $match.Groups[3].Value
     })
-    [System.IO.File]::WriteAllText($vercelPath, ($vercel | ConvertTo-Json -Depth 10), [System.Text.UTF8Encoding]::new($false))
+    $cacheRule = @'
+    {
+      "source": "/assets/js/feedback-config.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    },
+'@
+    if (-not $vercel.Contains('"source": "/assets/js/feedback-config.js"')) {
+        $vercel = $vercel.Replace('    {' + [Environment]::NewLine + '      "source": "/assets/(.*)",', $cacheRule.TrimEnd())
+    }
+    [System.IO.File]::WriteAllText($vercelPath, $vercel, [System.Text.UTF8Encoding]::new($false))
 }
 
 Write-Host "=== KKL Static Build ==="

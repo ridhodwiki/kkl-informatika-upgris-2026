@@ -6,8 +6,29 @@ import {join,resolve,extname} from 'node:path';
 import assert from 'node:assert/strict';
 
 const root=resolve(import.meta.dirname,'..');
+let feedbackFixture=false,failRead=false,failWrite=false,publicPosts=0;
+const fixtureRows=Array.from({length:23},(_,i)=>({id:`00000000-0000-0000-0000-${String(23-i).padStart(12,'0')}`,name:i?'Visitor '+i:'<img src=x onerror=alert(1)>',rating:5,message:i?'A public memory':'<script>alert(1)</script>',created_at:'2026-11-10T00:00:00+00:00'}));
 const server=createServer(async(req,res)=>{
   try {
+    const requestUrl=new URL(req.url,'http://localhost');
+    if(feedbackFixture&&requestUrl.pathname==='/assets/js/feedback-config.js'){
+      res.setHeader('Content-Type','text/javascript');
+      res.end(`export const feedbackConfig={url:'http://127.0.0.1:${server.address().port}',publishableKey:'sb_publishable_test'};`);return;
+    }
+    if(feedbackFixture&&requestUrl.pathname==='/rest/v1/kkl_public_feedback'){
+      res.setHeader('Content-Type','application/json');
+      if(req.method==='POST'){
+        publicPosts++;let body='';for await(const chunk of req)body+=chunk;
+        await new Promise(r=>setTimeout(r,150));
+        if(failWrite){res.writeHead(503);res.end('{}');return;}
+        fixtureRows.unshift({...JSON.parse(body),id:'00000000-0000-0000-0000-000000000099',created_at:'2026-11-11T00:00:00+00:00'});
+        res.writeHead(201);res.end();return;
+      }
+      if(failRead){res.writeHead(503);res.end('{}');return;}
+      const cursor=requestUrl.searchParams.get('or')?.match(/id\.lt\.([0-9a-f-]+)/)?.[1];
+      const start=cursor?fixtureRows.findIndex(row=>row.id===cursor)+1:0;
+      res.end(JSON.stringify(fixtureRows.slice(start,start+21)));return;
+    }
     const path=resolve(root,'.'+new URL(req.url,'http://localhost').pathname.replace(/\/$/,'/index.html'));
     if(!path.startsWith(root+ '\\'))throw Error('Outside root');
     const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.webp':'image/webp'};
@@ -47,6 +68,7 @@ try{
     await new Promise(r=>setTimeout(r,100));
   }
   assert.equal(await evaluate(`Boolean(document.querySelector('.gallery-search'))`),true);
+  assert.equal(await evaluate(`document.querySelector('[data-public-feedback-form] button[type=submit]').disabled&&document.querySelector('[data-public-feedback-status]').textContent.includes('belum aktif')`),true,'unconfigured service stays disabled');
   assert.equal(await evaluate(`Boolean(document.querySelector('.loading-overlay .lottie-container'))`),true,'entrance overlay markup present');
   for(const width of [375,768,1440]){
     await command('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:width<768});
@@ -131,6 +153,47 @@ try{
   await command('Page.reload',{ignoreCache:true});
   await new Promise(r=>setTimeout(r,1500));
   assert.equal(await evaluate(`!document.querySelector('[data-scroll-world]').classList.contains('world-enabled')&&[...document.querySelectorAll('[data-world-panel]')].every(p=>!p.inert)`),true,'missing model fallback');
+  feedbackFixture=true;
+  await command('Page.reload',{ignoreCache:true});
+  for(let i=0;i<60;i++){if(await evaluate(`document.querySelectorAll('[data-public-feedback-list] article').length===20`))break;await new Promise(r=>setTimeout(r,100))}
+  assert.equal(await evaluate(`document.querySelectorAll('[data-public-feedback-list] article').length`),20,'public page size');
+  await evaluate(`document.querySelector('.loading-overlay')?.click()`);
+  for(const width of [375,1440]){
+    await command('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:width<768});
+    await evaluate(`document.fonts.ready.then(()=>new Promise(r=>setTimeout(r,600)))`);
+    await evaluate(`document.querySelector('#feedback').scrollIntoView({behavior:'instant'});new Promise(r=>setTimeout(r,600))`);
+    assert.equal(await evaluate(`getComputedStyle(document.querySelector('.public-feedback-heading')).display`),'flex','feedback stylesheet loaded');
+    assert.equal(await evaluate(`document.documentElement.scrollWidth<=innerWidth+1`),true,'feedback fits viewport');
+    const {data}=await command('Page.captureScreenshot',{format:'png'});
+    await writeFile(join(screenshots,`feedback-${width}.png`),Buffer.from(data,'base64'));
+  }
+  assert.equal(await evaluate(`document.querySelector('[data-public-feedback-list]').querySelector('script,img')===null`),true,'public content rendered as text');
+  await evaluate(`document.querySelector('[data-feedback-more]').click();new Promise(r=>setTimeout(r,150))`);
+  assert.equal(await evaluate(`document.querySelectorAll('[data-public-feedback-list] article').length===23&&document.querySelector('[data-feedback-more]').hidden`),true,'public pagination');
+  failRead=true;
+  await evaluate(`document.querySelector('[data-feedback-refresh]').click();new Promise(r=>setTimeout(r,150))`);
+  assert.equal(await evaluate(`document.querySelectorAll('[data-public-feedback-list] article').length===23&&document.querySelector('[data-public-feedback-status]').textContent.includes('belum dapat')`),true,'read error retains list');
+  failRead=false;
+  const publicFill=`const f=document.querySelector('[data-public-feedback-form]');f.elements.name.value='Public tester';f.elements.rating.value='5';f.elements.message.value='Shared public feedback';`;
+  assert.equal(await evaluate(`(()=>{${publicFill}f.elements.name.value='  ';f.requestSubmit();return f.elements.message.value==='Shared public feedback'&&document.querySelector('[data-public-feedback-notice]').textContent.includes('valid')})()`),true,'public whitespace validation');
+  failWrite=true;
+  await evaluate(`(()=>{${publicFill}f.requestSubmit()})();new Promise(r=>setTimeout(r,350))`);
+  assert.equal(await evaluate(`document.querySelector('[data-public-feedback-form]').elements.message.value`),'Shared public feedback','failed public send retains input');
+  failWrite=false;const beforePosts=publicPosts;
+  await evaluate(`(()=>{${publicFill}f.requestSubmit();f.dispatchEvent(new Event('submit',{cancelable:true,bubbles:true}))})();new Promise(r=>setTimeout(r,450))`);
+  assert.equal(publicPosts-beforePosts,1,'duplicate submit prevented');
+  assert.equal(await evaluate(`document.querySelector('[data-public-feedback-form]').elements.message.value===''&&document.querySelector('[data-public-feedback-list] article p').textContent==='Shared public feedback'`),true,'public send resets only on success');
+  assert.equal(await evaluate(`JSON.parse(localStorage.getItem('kkl_upgris_2026_feedbacks')).length`),20,'public send leaves private notes untouched');
+  const {browserContextId}=await send('Target.createBrowserContext');
+  const other=await send('Target.createTarget',{url:`http://127.0.0.1:${server.address().port}/`,browserContextId});
+  const attached=await send('Target.attachToTarget',{targetId:other.targetId,flatten:true});
+  let visibleElsewhere=false;
+  for(let i=0;i<60;i++){
+    const result=await send('Runtime.evaluate',{expression:`document.querySelector('[data-public-feedback-list] article p')?.textContent==='Shared public feedback'&&!localStorage.getItem('kkl_upgris_2026_feedbacks')`,returnByValue:true},attached.sessionId);
+    if(result.result?.value){visibleElsewhere=true;break}await new Promise(r=>setTimeout(r,100));
+  }
+  assert.equal(visibleElsewhere,true,'feedback visible in separate browser context');
+  await send('Target.disposeBrowserContext',{browserContextId});
   await command('Emulation.setScriptExecutionDisabled',{value:true});
   await command('Page.reload',{ignoreCache:true});
   await new Promise(r=>setTimeout(r,700));

@@ -35,6 +35,8 @@ public/uploads/profiles/*
 !database/schema.sql
 !database/seed_destinations.sql
 !database/migration_*.sql
+!supabase/migrations/*.sql
+!supabase/tests/*.sql
 
 # Inspection / audit artifacts
 .taste-skill/

@@ -21,6 +21,7 @@
 <link rel="preload" href="assets/animations/visiting-abroad.lottie" as="fetch" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css?v=24">
+<link rel="stylesheet" href="assets/css/feedback.css?v=1">
 </head>
 <body class="public-page">
 <div class="loading-overlay" aria-hidden="true">
@@ -337,12 +338,29 @@
 </div></section>
 
 <!-- ─── Feedback ──────────────────────────────────────────────────────────────
-     Static build has no PHP POST handler: main.js intercepts submit
-     (data-static-feedback), resets the form and shows a thank-you note.
+     Public feedback uses Supabase; private notes remain in localStorage.
      ────────────────────────────────────────────────────────────────────────── -->
 <section id="feedback" class="section section-soft">
-<div class="container feedback-layout reveal">
-  <div><h2 class="reveal">Bagaimana perjalananmu?</h2><p>Tuliskan kesan, pesan, atau momen favoritmu selama KKL.</p><p id="feedback-local-note">Catatan ini hanya disimpan di browser perangkatmu, tidak dikirim ke admin atau ditampilkan kepada pengunjung lain. Menghapus data browser juga menghapus catatan.</p></div>
+<div class="container" data-public-feedback>
+  <div class="feedback-layout">
+    <div><h2>Bagaimana perjalananmu?</h2><p>Tuliskan kesan, pesan, atau momen favoritmu selama KKL.</p><p id="feedback-public-note">Nama, rating, dan pesan yang dikirim akan langsung terlihat oleh semua pengunjung. Hindari mencantumkan data pribadi sensitif.</p></div>
+    <form class="feedback-form" data-public-feedback-form action="#" method="post">
+      <p class="alert" role="status" tabindex="-1" hidden data-public-feedback-notice></p>
+      <label>Nama<input name="name" required maxlength="100" autocomplete="name" placeholder="Nama kamu"></label>
+      <label>Rating<select name="rating" required><option value="">Pilih rating</option><option value="5">5 — Sangat berkesan</option><option value="4">4 — Berkesan</option><option value="3">3 — Cukup</option><option value="2">2 — Kurang</option><option value="1">1 — Perlu ditingkatkan</option></select></label>
+      <label>Cerita / feedback<textarea name="message" required maxlength="1000" rows="5" placeholder="Ceritakan pengalamanmu..."></textarea></label>
+      <button class="btn btn-primary" type="submit" disabled aria-describedby="feedback-public-note">Kirim feedback publik</button>
+      <noscript><p>Aktifkan JavaScript untuk membaca dan mengirim feedback publik.</p></noscript>
+    </form>
+  </div>
+  <div class="public-feedback-heading"><h3>Kesan pengunjung</h3><button type="button" class="btn btn-ghost" disabled data-feedback-refresh>Muat ulang</button></div>
+  <p role="status" data-public-feedback-status>Feedback publik belum aktif.</p>
+  <div class="feedback-list" aria-label="Feedback publik" data-public-feedback-list></div>
+  <button type="button" class="btn btn-ghost" hidden disabled data-feedback-more>Muat lebih banyak</button>
+</div>
+<details class="container feedback-private"><summary>Catatan pribadi di perangkat</summary>
+<div class="feedback-layout">
+  <div><h3>Ruang catatan pribadi</h3><p id="feedback-local-note">Catatan ini hanya disimpan di browser perangkatmu, tidak dikirim ke admin atau ditampilkan kepada pengunjung lain. Menghapus data browser juga menghapus catatan.</p></div>
   <form class="feedback-form" action="#" method="post" data-static-feedback>
     <div class="alert alert-success" role="status" tabindex="-1" hidden data-feedback-thanks></div>
     <label>Nama<input name="name" required maxlength="100" placeholder="Nama kamu"></label>
@@ -359,10 +377,12 @@
     <button class="btn btn-primary" type="submit" aria-describedby="feedback-local-note" disabled data-local-save>Simpan catatan di perangkat</button>
     <noscript><p>Aktifkan JavaScript untuk menyimpan catatan di browser.</p></noscript>
   </form>
-  <!-- EXPORT:feedback:start -->
+</div></details>
+<details class="container feedback-archive"><summary>Arsip kesan sebelumnya</summary>
+<!-- EXPORT:feedback:start -->
 
 <!-- EXPORT:feedback:end -->
-</div>
+</details>
 </section>
 
 <footer class="footer">
@@ -395,6 +415,7 @@
 
 
 <script defer src="assets/js/main.js?v=22"></script>
+<script type="module" src="assets/js/public-feedback.js?v=1"></script>
 <link rel="stylesheet" href="dist/assets/main.CvRasZiY.css">
 <script type="module" src="dist/assets/main.GDeSUoWZ.js"></script>
 

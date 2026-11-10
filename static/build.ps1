@@ -7,6 +7,23 @@ $root = Split-Path $PSScriptRoot -Parent
 $src  = Join-Path $root "public"
 $out  = $PSScriptRoot   # static/
 
+# Only the configured Supabase project may receive browser requests.
+$feedbackConfig = Get-Content (Join-Path $out 'assets\js\feedback-config.js') -Raw
+$feedbackUrl = [regex]::Match($feedbackConfig, "url:\s*'([^']*)'").Groups[1].Value
+if ($feedbackUrl) {
+    $feedbackUri = [uri]$feedbackUrl
+    if ($feedbackUri.Scheme -ne 'https' -or $feedbackUri.Host -notmatch '^[a-z0-9-]+\.supabase\.co$' -or $feedbackUri.UserInfo) { throw 'Invalid Supabase project URL' }
+    $vercelPath = Join-Path $out 'vercel.json'
+    $vercel = Get-Content $vercelPath -Raw | ConvertFrom-Json
+    $csp = $vercel.headers[0].headers | Where-Object { $_.key -eq 'Content-Security-Policy' }
+    $csp.value = [regex]::Replace($csp.value, 'connect-src ([^;]*);', {
+        param($match)
+        $sources = [regex]::Replace($match.Groups[1].Value, ' https://[a-z0-9-]+\.supabase\.co', '')
+        return 'connect-src ' + $sources + ' ' + $feedbackUri.GetLeftPart([System.UriPartial]::Authority) + ';'
+    })
+    [System.IO.File]::WriteAllText($vercelPath, ($vercel | ConvertTo-Json -Depth 10), [System.Text.UTF8Encoding]::new($false))
+}
+
 Write-Host "=== KKL Static Build ==="
 Write-Host "Source:  $src"
 Write-Host "Output:  $out"

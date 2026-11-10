@@ -8,11 +8,13 @@ Website dokumentasi perjalanan Kuliah Kerja Lapangan Informatika Universitas PGR
 | --- | --- | --- |
 | Sumber konten | Database MySQL/MariaDB | HTML dan aset yang tersimpan di Git |
 | Dashboard admin | Ada | Tidak ada backend admin |
-| Feedback baru | Dikirim ke database dan dimoderasi admin | Catatan pribadi di `localStorage`, tidak dikirim ke admin |
+| Feedback baru | Dikirim ke database dan dimoderasi admin | Publik melalui Supabase setelah konfigurasi; catatan pribadi tetap terpisah |
 | Pembaruan konten | Melalui admin | Ekspor konten yang didukung, build, lalu commit/push |
 | Pencarian galeri terbaru | Belum disinkronkan | Pencarian judul/lokasi, jumlah hasil, dan reset |
 
-Catatan lokal hanya tersedia pada browser dan origin yang sama. Menghapus data browser menghapus catatan. Feedback yang telah disetujui di PHP dapat ikut diekspor sebagai konten publik; ini berbeda dari catatan lokal pengunjung.
+Feedback publik Supabase tampil langsung tanpa moderasi atau login. Daftar dimuat ketika halaman dibuka, setelah pengiriman, atau melalui tombol Muat ulang. Pagination menampilkan 20 entri per halaman. Jika Supabase belum dikonfigurasi, pengiriman publik dinonaktifkan dan status layanan belum aktif ditampilkan.
+
+Catatan lokal hanya tersedia pada browser dan origin yang sama. Menghapus data browser menghapus catatan. Catatan lama tidak diunggah otomatis. Feedback yang telah disetujui di PHP dapat ikut diekspor sebagai arsip terpisah dari daftar Supabase.
 
 Catatan pribadi dapat dihapus satu per satu dan diunduh sebagai JSON. Tidak ada pemotongan otomatis setelah 20 catatan; jika kapasitas penyimpanan browser habis, penyimpanan baru ditolak dan isian tetap tersedia. Data lama yang tidak dapat dibaca tidak ditimpa. Catatan yang telah terhapus oleh versi sebelumnya tidak dapat dipulihkan otomatis.
 
@@ -134,6 +136,27 @@ node static/tests/ui-check.mjs
 Runner ini saat ini memakai pemeriksaan path Windows. Skrip browser lama di `tests/` juga memiliki dependensi CDP dengan path lokal pengembang; jangan menganggapnya portabel atau siap CI tanpa penyesuaian.
 
 ## Publikasi ke Vercel
+
+### Mengaktifkan feedback Supabase
+
+1. Buat proyek Supabase khusus KKL. Jangan menjalankan migrasi pada proyek aplikasi lain.
+2. Jalankan `supabase/migrations/202611100001_kkl_feedback.sql` di SQL Editor proyek baru. Migrasi membuat tabel `public.kkl_public_feedback`, indeks, RLS, serta grants. Pengunjung hanya dapat membaca dan mengirim nama/rating/pesan; ID dan waktu dibuat server. Update, delete, dan truncate tidak diberikan kepada role publik.
+3. Dari pengaturan proyek, ambil Project URL dan publishable key. Isi keduanya pada `static/assets/js/feedback-config.js`. Publishable key memang konfigurasi publik; jangan memakai secret/service-role key. Legacy anon key juga didukung.
+4. Jalankan `powershell -ExecutionPolicy Bypass -File static/build.ps1`. Build menambahkan origin HTTPS proyek Supabase yang persis sesuai konfigurasi ke `connect-src` pada CSP `static/vercel.json`. Pastikan perubahan ini ikut commit. Environment variable Vercel saja tidak mengisi konfigurasi karena deployment saat ini tanpa build command.
+5. Jalankan tes akses `supabase/tests/feedback_access.sql` melalui SQL Editor pada proyek uji setelah migrasi. Skrip memakai role anon/authenticated dan membatalkan baris uji dengan rollback. Setelah itu, uji kirim dan baca dari dua browser pada deployment.
+6. Untuk menghapus feedback, gunakan Table Editor Supabase pada tabel `kkl_public_feedback`. Form publik tidak menyediakan hak edit/hapus.
+
+Pengujian lokal tanpa akun Supabase:
+
+```powershell
+node --test static/tests/feedback-api.test.mjs
+node --test static/tests/feedback-build.test.mjs
+node static/tests/ui-check.mjs
+```
+
+Tes browser memakai API tiruan untuk memeriksa pengiriman lintas konteks browser, pagination, kegagalan jaringan, submit ganda, dan rendering pesan sebagai teks. Tes ini tidak menggantikan pengujian RLS atau koneksi Supabase sebenarnya. Tidak ada CAPTCHA/rate limiter pada versi ini; publikasi anonim langsung dapat menerima spam.
+
+Form dan catatan pribadi di `static/` terpisah dari backend PHP. Ekspor hanya memperbarui blok arsip; build mempertahankan file integrasi Supabase dan konfigurasi statis.
 
 Versi statis menggunakan konfigurasi `static/vercel.json`: output `.`, tanpa install atau build command. Root Directory proyek Vercel harus menunjuk ke `static`. Aset siap publikasi disimpan dalam repositori; Vercel tidak menjalankan PHP, mengambil database lokal, atau melakukan ekspor konten.
 
